@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { BeerIcon, CalendarIcon, RefreshCwIcon } from "lucide-react"
+import { BeerIcon, CalendarIcon, RefreshCwIcon, ExternalLinkIcon } from "lucide-react"
 import { StatsOverview } from "@/components/stats-overview"
 import { Leaderboard } from "@/components/leaderboard"
 
@@ -51,6 +51,17 @@ export default function BeerDashboard() {
                 <CalendarIcon className="mr-1 h-3 w-3" />
                 Since Feb 2025
               </Badge>
+              <Button variant="outline" size="sm" asChild>
+                <a
+                  href="https://forms.gle/yNnGcQaCy98FGSQp9"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center space-x-1"
+                >
+                  <span>Add Entry</span>
+                  <ExternalLinkIcon className="h-3 w-3" />
+                </a>
+              </Button>
               <Button variant="outline" size="sm" onClick={loadData} disabled={loading}>
                 {loading ? <RefreshCwIcon className="h-4 w-4 animate-spin" /> : <RefreshCwIcon className="h-4 w-4" />}
               </Button>
