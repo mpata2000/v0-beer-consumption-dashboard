@@ -20,7 +20,9 @@ export function LitersMetrics({ data }: LitersMetricsProps) {
 
   // Find individual record for most liters in a single day
   const dailyUserStats = entries.reduce((acc: any, entry: any) => {
-    const dateStr = entry.parsedDate.toISOString().split("T")[0]
+    // Ensure parsedDate is a proper Date object
+    const parsedDate = new Date(entry.parsedDate)
+    const dateStr = parsedDate.toISOString().split("T")[0]
     const key = `${dateStr}-${entry.name}`
 
     if (!acc[key]) {
@@ -28,7 +30,7 @@ export function LitersMetrics({ data }: LitersMetricsProps) {
         date: dateStr,
         name: entry.name,
         liters: 0,
-        displayDate: entry.parsedDate.toLocaleDateString("en-US", {
+        displayDate: parsedDate.toLocaleDateString("en-US", {
           month: "short",
           day: "numeric",
         }),

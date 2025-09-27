@@ -3,9 +3,15 @@
 import { useState, useEffect } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { BeerIcon, CalendarIcon, RefreshCwIcon, ExternalLinkIcon } from "lucide-react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { BeerIcon, CalendarIcon, RefreshCwIcon, ExternalLinkIcon, BarChartIcon, PieChartIcon } from "lucide-react"
 import { StatsOverview } from "@/components/stats-overview"
 import { Leaderboard } from "@/components/leaderboard"
+import { DailyMetrics } from "@/components/daily-metrics"
+import { LitersMetrics } from "@/components/liters-metrics"
+import { BeerInsights } from "@/components/beer-insights"
+import { SocialInsights } from "@/components/social-insights"
+import { CategoryCharts } from "@/components/category-charts"
 
 export default function BeerDashboard() {
   const [data, setData] = useState(null)
@@ -70,12 +76,57 @@ export default function BeerDashboard() {
         </div>
       </header>
 
-      <main className="container mx-auto py-8 space-y-8 px-2">
-        <StatsOverview data={data} />
+      <main className="container mx-auto py-8 px-2">
+        <Tabs defaultValue="overview" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 mb-8">
+            <TabsTrigger value="overview" className="flex items-center gap-2">
+              <BeerIcon className="h-4 w-4" />
+              <span className="hidden sm:inline">Overview</span>
+            </TabsTrigger>
+            <TabsTrigger value="daily-metrics" className="flex items-center gap-2">
+              <BarChartIcon className="h-4 w-4" />
+              <span className="hidden sm:inline">Daily Metrics</span>
+            </TabsTrigger>
+            <TabsTrigger value="insights" className="flex items-center gap-2">
+              <PieChartIcon className="h-4 w-4" />
+              <span className="hidden sm:inline">Insights</span>
+            </TabsTrigger>
+          </TabsList>
 
-        <div className="grid gap-6">
-          <Leaderboard data={data} />
-        </div>
+          <TabsContent value="overview" className="space-y-8">
+            <StatsOverview data={data} />
+            <Leaderboard data={data} />
+          </TabsContent>
+
+          <TabsContent value="daily-metrics" className="space-y-8">
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold">Daily Beer Consumption Metrics</h2>
+              <DailyMetrics data={data} />
+            </div>
+            
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold">Daily Liter Consumption Metrics</h2>
+              <LitersMetrics data={data} />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="insights" className="space-y-8">
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold">Beer Analysis</h2>
+              <BeerInsights data={data} />
+            </div>
+            
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold">Social & Location Insights</h2>
+              <SocialInsights data={data} />
+            </div>
+
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold">Category Analysis</h2>
+              <CategoryCharts data={data} />
+            </div>
+          </TabsContent>
+        </Tabs>
       </main>
     </div>
   )
