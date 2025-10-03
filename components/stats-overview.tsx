@@ -2,25 +2,15 @@
 
 import { Card, CardContent } from "@/components/ui/card"
 import { BeerIcon, DropletIcon } from "lucide-react"
+import { DashboardData } from "@/lib/types"
+import { calculateTotalStats } from "@/lib/data-utils"
 
 interface StatsOverviewProps {
-  data: any
+  data: DashboardData | null
 }
 
 export function StatsOverview({ data }: StatsOverviewProps) {
-  const stats = data
-    ? {
-        totalBeers: data.totalBeers || 0,
-        totalLiters: data.totalLiters || 0,
-        avgBeersPerDay: data.avgBeersPerDay || 0,
-        avgLitersPerDay: data.avgLitersPerDay || 0,
-      }
-    : {
-        totalBeers: 0,
-        totalLiters: 0,
-        avgBeersPerDay: 0,
-        avgLitersPerDay: 0,
-      }
+  const stats = calculateTotalStats(data)
 
   console.log("[v0] Stats data:", stats)
 

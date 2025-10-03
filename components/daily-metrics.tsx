@@ -3,61 +3,88 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import * as RechartsPrimitive from "recharts"
+import { DashboardData } from "@/lib/types"
+import { getGlobalBeerPerDay } from "@/lib/data-utils"
 
 interface DailyMetricsProps {
-  data: any
+  data: DashboardData | null
 }
 
 export function DailyMetrics({ data }: DailyMetricsProps) {
-  const progressionData = data?.progressionData || []
-  const entries = data?.entries || []
+  const perDay: Record<string, number> = getGlobalBeerPerDay(data)
+  const chartDates = Object.keys(perDay).sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
+  let cumulative = 0
+  const chartData = chartDates.map((dateStr) => {
+    const daily = perDay[dateStr] || 0
+    cumulative += daily
+    return {
+      date: new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+      cumulative,
+      daily,
+    }
+  })
 
   // Find day with most beers consumed
-  const dayWithMostBeers = progressionData.reduce(
-    (max: any, day: any) => (day.beers > (max?.beers || 0) ? day : max),
-    null,
-  )
+  const dayWithMostBeers = chartData.reduce((max: any, day: any) => (day.daily > (max?.daily || 0) ? day : max), chartData[0] || null)
 
-  // Find individual record for most beers in a single day
-  const dailyUserStats = entries.reduce((acc: any, entry: any) => {
-    // Ensure parsedDate is a proper Date object
-    const parsedDate = new Date(entry.parsedDate)
-    const dateStr = parsedDate.toISOString().split("T")[0]
-    const key = `${dateStr}-${entry.name}`
+  // Find individual record for most beers in a single day by one person
+  const individualRecord = (() : { name: string; beers: number; displayDate: string } | null => {
+    if (!data?.entries) return null
 
-    if (!acc[key]) {
-      acc[key] = {
-        date: dateStr,
-        name: entry.name,
-        beers: 0,
-        displayDate: parsedDate.toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-        }),
+    // Group by person and date
+    const personDayTotals = new Map<string, { beers: number; date: string; name: string }>()
+    data.entries.forEach(entry => {
+      const key = `${entry.email}-${entry.date}`
+      const existing = personDayTotals.get(key)
+      if (existing) {
+        existing.beers += 1
+      } else {
+        personDayTotals.set(key, {
+          beers: 1,
+          date: entry.date,
+          name: entry.name,
+        })
       }
-    }
-    acc[key].beers += 1
-    return acc
-  }, {})
+    })
 
-  const individualRecord = Object.values(dailyUserStats).reduce(
-    (max: any, record: any) => (record.beers > (max?.beers || 0) ? record : max),
-    null,
-  )
+    // Find max
+    let max: { name: string; beers: number; displayDate: string } | null = null
+    personDayTotals.forEach(value => {
+      if (!max || value.beers > max.beers) {
+        max = {
+          name: value.name,
+          beers: value.beers,
+          displayDate: new Date(value.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+        }
+      }
+    })
 
-  // Transform progression data for chart
-  const chartData = progressionData.map((day: any) => ({
-    date: new Date(day.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-    cumulative: day.cumulative,
-    daily: day.beers,
-  }))
+    return max
+  })()
 
   // Get time range data for pie chart
-  const timeRangeData = Object.entries(data?.categories?.timeRanges || {}).map(([name, value], index) => ({
-    name,
-    value: value as number,
-    fill: `var(--chart-${(index % 5) + 1})`,
-  }))
+  const timeRangeCounts: Record<string, number> = {}
+  if (data?.entries) {
+    data.entries.forEach(entry => {
+      const timeRange = entry.timeRange || "Unknown"
+      timeRangeCounts[timeRange] = (timeRangeCounts[timeRange] || 0) + 1
+    })
+  }
+
+  // Expanded color palette
+  const colors = [
+    "hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))",
+    "hsl(var(--chart-4))", "hsl(var(--chart-5))",
+    "#8b5cf6", "#ec4899", "#f97316", "#14b8a6", "#6366f1"
+  ]
+
+  const timeRangeData = Object.entries(timeRangeCounts)
+    .map(([name, value], index) => ({
+      name,
+      value: value as number,
+      fill: colors[index % colors.length],
+    }))
+    .sort((a, b) => b.value - a.value)
 
   return (
     <div className="space-y-6">
@@ -68,14 +95,9 @@ export function DailyMetrics({ data }: DailyMetricsProps) {
             <CardDescription>Most beers consumed in one day</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{dayWithMostBeers?.beers || 0}</div>
+            <div className="text-2xl font-bold">{dayWithMostBeers?.daily || 0}</div>
             <p className="text-xs text-muted-foreground">
-              {dayWithMostBeers
-                ? new Date(dayWithMostBeers.date).toLocaleDateString("en-US", {
-                    month: "long",
-                    day: "numeric",
-                  })
-                : "No data"}
+              {dayWithMostBeers?.date || "No data"}
             </p>
           </CardContent>
         </Card>
@@ -86,9 +108,9 @@ export function DailyMetrics({ data }: DailyMetricsProps) {
             <CardDescription>Most beers by one person in a day</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{individualRecord?.beers || 0}</div>
+            <div className="text-2xl font-bold">{(individualRecord as any)?.beers || 0}</div>
             <p className="text-xs text-muted-foreground">
-              {individualRecord ? `${individualRecord.name} on ${individualRecord.displayDate}` : "No data"}
+              {individualRecord ? `${(individualRecord as any).name} on ${(individualRecord as any).displayDate}` : "No data"}
             </p>
           </CardContent>
         </Card>
@@ -105,23 +127,30 @@ export function DailyMetrics({ data }: DailyMetricsProps) {
                   label: "Beers",
                 },
               }}
-              className="h-[120px]"
+              className="h-[180px]"
             >
               <RechartsPrimitive.PieChart>
                 <RechartsPrimitive.Pie
                   data={timeRangeData}
                   cx="50%"
-                  cy="50%"
+                  cy="40%"
                   innerRadius={25}
                   outerRadius={50}
                   paddingAngle={2}
                   dataKey="value"
+                  label={({ percent }: any) => `${(percent * 100).toFixed(0)}%`}
                 >
                   {timeRangeData.map((entry, index) => (
                     <RechartsPrimitive.Cell key={`cell-${index}`} fill={entry.fill} />
                   ))}
                 </RechartsPrimitive.Pie>
-                <ChartTooltip content={<ChartTooltipContent />} />
+                <ChartTooltip content={ChartTooltipContent} />
+                <RechartsPrimitive.Legend
+                  verticalAlign="bottom"
+                  height={36}
+                  iconType="circle"
+                  wrapperStyle={{ fontSize: '10px' }}
+                />
               </RechartsPrimitive.PieChart>
             </ChartContainer>
           </CardContent>
@@ -164,7 +193,7 @@ export function DailyMetrics({ data }: DailyMetricsProps) {
                 stroke="var(--muted-foreground)"
                 fontSize={12}
               />
-              <ChartTooltip content={<ChartTooltipContent />} />
+              <ChartTooltip content={ChartTooltipContent} />
               <RechartsPrimitive.Line
                 yAxisId="left"
                 type="monotone"

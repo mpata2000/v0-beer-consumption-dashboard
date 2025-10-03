@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { cn } from "@/lib/utils"
+import { ResponsiveContainer } from "recharts"
 
 // Chart configuration context
 const ChartContext = React.createContext<{
@@ -31,7 +32,9 @@ const ChartContainer = React.forwardRef<HTMLDivElement, ChartContainerProps>(
           }
           {...props}
         >
-          {children}
+          <ResponsiveContainer width="100%" height="100%">
+            {children as any}
+          </ResponsiveContainer>
         </div>
       </ChartContext.Provider>
     )
@@ -84,7 +87,7 @@ const ChartTooltipContent = React.forwardRef<
         {payload.map((item, index) => {
           const configItem = config[item.dataKey as string] || {}
           const value = valueFormatter ? valueFormatter(item.value) : item.value
-          
+
           return (
             <div key={index} className="flex items-center gap-2 text-xs">
               {!hideIndicator && (

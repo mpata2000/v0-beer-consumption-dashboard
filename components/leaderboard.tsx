@@ -2,13 +2,15 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TrophyIcon, MedalIcon, AwardIcon } from "lucide-react"
+import { DashboardData } from "@/lib/types"
+import { calculateLeaderboard } from "@/lib/data-utils"
 
 interface LeaderboardProps {
-  data: any
+  data: DashboardData | null
 }
 
 export function Leaderboard({ data }: LeaderboardProps) {
-  const leaderboard = data?.leaderboard || []
+  const leaderboard = calculateLeaderboard(data)
 
   console.log("[v0] Leaderboard data:", leaderboard)
 

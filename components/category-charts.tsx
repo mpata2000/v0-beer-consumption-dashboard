@@ -3,80 +3,83 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import * as RechartsPrimitive from "recharts"
+import { DashboardData } from "@/lib/types"
+import { getGlobalBeerLocations, getGlobalBeerEvents, getGlobalAloneCount, calculateTotalStats } from "@/lib/data-utils"
 
 interface CategoryChartsProps {
-  data: any
+  data: DashboardData | null
 }
 
 export function CategoryCharts({ data }: CategoryChartsProps) {
-  const categories = data?.categories || {}
+  const locationCounts = getGlobalBeerLocations(data)
+  const eventCounts = getGlobalBeerEvents(data)
+  const aloneCount = getGlobalAloneCount(data)
+  const totalBeers = calculateTotalStats(data).totalBeers
 
-  console.log("[v0] Categories data:", categories)
+  // Expanded color palette
+  const colors = [
+    "hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))",
+    "hsl(var(--chart-4))", "hsl(var(--chart-5))",
+    "#8b5cf6", "#ec4899", "#f97316", "#14b8a6", "#6366f1"
+  ]
 
-  // Transform the category data into chart format
-  const timeRangeData = Object.entries(categories.timeRanges || {}).map(([name, value], index) => ({
-    name,
-    value: value as number,
-    color: `var(--chart-${(index % 5) + 1})`,
-  }))
+  const aloneData = [
+    { name: "Alone", value: aloneCount, fill: colors[0] },
+    { name: "With Others", value: Math.max(totalBeers - aloneCount, 0), fill: colors[1] },
+  ]
 
-  const aloneData = Object.entries(categories.alone || {}).map(([name, value], index) => ({
-    name: name === "Sí" ? "Alone" : name === "No" ? "With Others" : name,
-    value: value as number,
-    color: `var(--chart-${(index % 5) + 1})`,
-  }))
-
-  const locationData = Object.entries(categories.locations || {})
-    .map(([name, value]) => ({
-      name,
-      value: value as number,
-    }))
+  const locationData = Object.entries(locationCounts)
+    .map(([name, value]) => ({ name, value: value as number }))
     .sort((a, b) => b.value - a.value)
-    .slice(0, 6) // Top 6 locations
+    .slice(0, 6)
 
-  const eventData = Object.entries(categories.events || {})
-    .map(([name, value]) => ({
-      name,
-      value: value as number,
-    }))
+  const eventData = Object.entries(eventCounts)
+    .map(([name, value]) => ({ name, value: value as number }))
     .sort((a, b) => b.value - a.value)
-    .slice(0, 5) // Top 5 events
+    .slice(0, 5)
 
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Time Range</CardTitle>
-          <CardDescription>When beers are consumed</CardDescription>
+          <CardTitle className="text-base">Social Context</CardTitle>
+          <CardDescription>Drinking alone vs with others</CardDescription>
         </CardHeader>
-        <CardContent>
-          <ChartContainer
-            config={{
-              value: {
-                label: "Beers",
-              },
-            }}
-            className="h-[200px]"
-          >
-            <RechartsPrimitive.PieChart>
-              <RechartsPrimitive.Pie
-                data={timeRangeData}
-                cx="50%"
-                cy="50%"
-                innerRadius={40}
-                outerRadius={80}
-                paddingAngle={2}
-                dataKey="value"
-              >
-                {timeRangeData.map((entry, index) => (
-                  <RechartsPrimitive.Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </RechartsPrimitive.Pie>
-              <ChartTooltip content={<ChartTooltipContent />} />
-            </RechartsPrimitive.PieChart>
-          </ChartContainer>
-        </CardContent>
-      </Card>
+          <CardContent>
+            <ChartContainer
+              config={{
+                value: {
+                  label: "Beers",
+                },
+              }}
+              className="h-[250px]"
+            >
+              <RechartsPrimitive.PieChart>
+                <RechartsPrimitive.Pie
+                  data={aloneData}
+                  cx="50%"
+                  cy="45%"
+                  innerRadius={35}
+                  outerRadius={70}
+                  paddingAngle={2}
+                  dataKey="value"
+                  label={({ percent }: any) => `${(percent * 100).toFixed(0)}%`}
+                >
+                  {aloneData.map((entry, index) => (
+                    <RechartsPrimitive.Cell key={`cell-${index}`} fill={entry.fill} />
+                  ))}
+                </RechartsPrimitive.Pie>
+                <ChartTooltip content={ChartTooltipContent} />
+                <RechartsPrimitive.Legend
+                  verticalAlign="bottom"
+                  height={36}
+                  iconType="circle"
+                  wrapperStyle={{ fontSize: '11px' }}
+                />
+              </RechartsPrimitive.PieChart>
+            </ChartContainer>
+          </CardContent>
+        </Card>
 
       <Card>
         <CardHeader>
@@ -90,23 +93,30 @@ export function CategoryCharts({ data }: CategoryChartsProps) {
                 label: "Beers",
               },
             }}
-            className="h-[200px]"
+            className="h-[250px]"
           >
             <RechartsPrimitive.PieChart>
               <RechartsPrimitive.Pie
                 data={aloneData}
                 cx="50%"
-                cy="50%"
-                innerRadius={40}
-                outerRadius={80}
+                cy="45%"
+                innerRadius={35}
+                outerRadius={70}
                 paddingAngle={5}
                 dataKey="value"
+                label={({ percent }: any) => `${(percent * 100).toFixed(0)}%`}
               >
                 {aloneData.map((entry, index) => (
-                  <RechartsPrimitive.Cell key={`cell-${index}`} fill={entry.color} />
+                  <RechartsPrimitive.Cell key={`cell-${index}`} fill={entry.fill} />
                 ))}
               </RechartsPrimitive.Pie>
-              <ChartTooltip content={<ChartTooltipContent />} />
+              <ChartTooltip content={ChartTooltipContent} />
+              <RechartsPrimitive.Legend
+                verticalAlign="bottom"
+                height={36}
+                iconType="circle"
+                wrapperStyle={{ fontSize: '11px' }}
+              />
             </RechartsPrimitive.PieChart>
           </ChartContainer>
         </CardContent>
@@ -138,7 +148,7 @@ export function CategoryCharts({ data }: CategoryChartsProps) {
                 height={60}
               />
               <RechartsPrimitive.YAxis stroke="var(--muted-foreground)" fontSize={10} />
-              <ChartTooltip content={<ChartTooltipContent />} />
+              <ChartTooltip content={ChartTooltipContent} />
               <RechartsPrimitive.Bar dataKey="value" fill="var(--chart-3)" radius={[2, 2, 0, 0]} />
             </RechartsPrimitive.BarChart>
           </ChartContainer>
@@ -171,7 +181,7 @@ export function CategoryCharts({ data }: CategoryChartsProps) {
                 height={60}
               />
               <RechartsPrimitive.YAxis stroke="var(--muted-foreground)" fontSize={10} />
-              <ChartTooltip content={<ChartTooltipContent />} />
+              <ChartTooltip content={ChartTooltipContent} />
               <RechartsPrimitive.Bar dataKey="value" fill="var(--chart-5)" radius={[2, 2, 0, 0]} />
             </RechartsPrimitive.BarChart>
           </ChartContainer>

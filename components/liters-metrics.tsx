@@ -3,54 +3,68 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import * as RechartsPrimitive from "recharts"
+import { DashboardData } from "@/lib/types"
+import { getGlobalMilliLitersPerDay } from "@/lib/data-utils"
 
 interface LitersMetricsProps {
-  data: any
+  data: DashboardData | null
 }
 
 export function LitersMetrics({ data }: LitersMetricsProps) {
-  const progressionData = data?.progressionData || []
-  const entries = data?.entries || []
+  const perDay: Record<string, number> = getGlobalMilliLitersPerDay(data)
+  const chartDates = Object.keys(perDay).sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
+  let cumulative = 0
+  const chartData = chartDates.map((dateStr) => {
+    const dailyMl = perDay[dateStr] || 0
+    const daily = dailyMl / 1000
+    cumulative += daily
+    return {
+      date: new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+      cumulative,
+      daily,
+    }
+  })
 
   // Find day with most liters consumed
-  const dayWithMostLiters = progressionData.reduce(
-    (max: any, day: any) => (day.liters > (max?.liters || 0) ? day : max),
-    null,
-  )
+  const dayWithMostLiters = chartData.reduce((max: any, day: any) => (day.daily > (max?.daily || 0) ? day : max), chartData[0] || null)
 
-  // Find individual record for most liters in a single day
-  const dailyUserStats = entries.reduce((acc: any, entry: any) => {
-    // Ensure parsedDate is a proper Date object
-    const parsedDate = new Date(entry.parsedDate)
-    const dateStr = parsedDate.toISOString().split("T")[0]
-    const key = `${dateStr}-${entry.name}`
+  // Find individual record for most liters in a single day by one person
+  const individualRecord: { name: string; liters: number; displayDate: string } | null = (() : { name: string; liters: number; displayDate: string } | null => {
+    if (!data?.entries) return null
 
-    if (!acc[key]) {
-      acc[key] = {
-        date: dateStr,
-        name: entry.name,
-        liters: 0,
-        displayDate: parsedDate.toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-        }),
+    // Group by person and date
+    const personDayTotals = new Map<string, { liters: number; date: string; name: string }>()
+    data.entries.forEach(entry => {
+      const key = `${entry.email}-${entry.date}`
+      const existing = personDayTotals.get(key)
+      if (existing) {
+        existing.liters += entry.amount / 1000
+      } else {
+        personDayTotals.set(key, {
+          liters: entry.amount / 1000,
+          date: entry.date,
+          name: entry.name,
+        })
       }
-    }
-    acc[key].liters += entry.amount / 1000
-    return acc
-  }, {})
+    })
 
-  const individualRecord = Object.values(dailyUserStats).reduce(
-    (max: any, record: any) => (record.liters > (max?.liters || 0) ? record : max),
-    null,
-  )
+    // Find max
+    let max: { name: string; liters: number; displayDate: string } | null = null
+    personDayTotals.forEach(value => {
+      if (!max || value.liters > max.liters) {
+        max = {
+          name: value.name,
+          liters: value.liters,
+          displayDate: new Date(value.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+        }
+      }
+    })
+
+    return max
+  })()
 
   // Transform progression data for chart
-  const chartData = progressionData.map((day: any) => ({
-    date: new Date(day.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-    cumulative: day.cumulativeLiters,
-    daily: day.liters,
-  }))
+
 
   return (
     <div className="space-y-6">
@@ -61,14 +75,9 @@ export function LitersMetrics({ data }: LitersMetricsProps) {
             <CardDescription>Most liters consumed in one day</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{dayWithMostLiters?.liters?.toFixed(1) || "0.0"}L</div>
+            <div className="text-2xl font-bold">{dayWithMostLiters?.daily?.toFixed(1) || "0.0"}L</div>
             <p className="text-xs text-muted-foreground">
-              {dayWithMostLiters
-                ? new Date(dayWithMostLiters.date).toLocaleDateString("en-US", {
-                    month: "long",
-                    day: "numeric",
-                  })
-                : "No data"}
+              {dayWithMostLiters?.date || "No data"}
             </p>
           </CardContent>
         </Card>
@@ -124,7 +133,12 @@ export function LitersMetrics({ data }: LitersMetricsProps) {
                 fontSize={12}
               />
               <ChartTooltip
-                content={<ChartTooltipContent formatter={(value, name) => [`${Number(value).toFixed(1)}L`, name]} />}
+                content={(props) => (
+                  <ChartTooltipContent
+                    {...props}
+                    valueFormatter={(value) => `${Number(value).toFixed(1)}L`}
+                  />
+                )}
               />
               <RechartsPrimitive.Line
                 yAxisId="left"

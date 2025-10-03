@@ -1,0 +1,50 @@
+# Pre-commit hooks configuration
+# Install pre-commit: pip install pre-commit
+# Setup hooks: pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: "^(pnpm-lock.yaml)$"
+      - id: end-of-file-fixer
+        exclude: "^(pnpm-lock.yaml)$"
+      - id: check-yaml
+        exclude: "^(pnpm-lock.yaml)$"
+      - id: check-json
+      - id: check-added-large-files
+        args: ['--maxkb=500']
+      - id: check-merge-conflict
+      - id: mixed-line-ending
+
+  # TypeScript/JavaScript linting (disabled - configure ESLint first)
+  # - repo: local
+  #   hooks:
+  #     - id: eslint
+  #       name: ESLint
+  #       entry: npm run lint
+  #       language: system
+  #       types: [javascript, jsx, ts, tsx]
+  #       pass_filenames: false
+  #       always_run: true
+
+  # TypeScript type checking (disabled - has UI component type issues)
+  # - repo: local
+  #   hooks:
+  #     - id: typescript
+  #       name: TypeScript Check
+  #       entry: npx tsc --noEmit
+  #       language: system
+  #       types: [ts, tsx]
+  #       pass_filenames: false
+  #       always_run: true
+
+  # Prevent committing to main/master (disabled for now)
+  # - repo: https://github.com/pre-commit/pre-commit-hooks
+  #   rev: v4.5.0
+  #   hooks:
+  #     - id: no-commit-to-branch
+  #       args: ['--branch', 'main', '--branch', 'master']
