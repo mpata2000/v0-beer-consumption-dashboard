@@ -53,7 +53,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                   rel="noopener noreferrer"
                   className="flex items-center space-x-1"
                 >
-                  <span>Add Entry</span>
+                  <span className="hidden sm:inline">Add Entry</span>
                   <ExternalLinkIcon className="h-3 w-3" />
                 </a>
               </Button>
