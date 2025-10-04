@@ -34,7 +34,7 @@ export function StatsOverview({ data }: StatsOverviewProps) {
               <DropletIcon className="h-6 w-6 text-accent" />
             </div>
             <div>
-              <div className="text-2xl font-bold text-foreground">{stats.totalLiters}L</div>
+              <div className="text-2xl font-bold text-foreground">{stats.totalLiters.toFixed(2)}L</div>
               <div className="text-sm font-medium text-muted-foreground">Total Liters</div>
               <div className="text-xs text-muted-foreground">{stats.avgLitersPerDay.toFixed(2)}L avg/day</div>
             </div>

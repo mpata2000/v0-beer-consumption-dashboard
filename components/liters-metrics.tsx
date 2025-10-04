@@ -1,8 +1,7 @@
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import * as RechartsPrimitive from "recharts"
+import { LineChart } from "@mui/x-charts/LineChart"
 import { DashboardData } from "@/lib/types"
 import { getGlobalMilliLitersPerDay } from "@/lib/data-utils"
 
@@ -25,12 +24,34 @@ export function LitersMetrics({ data }: LitersMetricsProps) {
     }
   })
 
-  // Find day with most liters consumed
-  const dayWithMostLiters = chartData.reduce((max: any, day: any) => (day.daily > (max?.daily || 0) ? day : max), chartData[0] || null)
+  // Find top global peak days for liters (up to 3 records with top 2 unique values)
+  const topGlobalDays = (() => {
+    const dailyRecords = Object.entries(perDay)
+      .map(([date, ml]) => ({
+        date,
+        liters: (ml as number) / 1000,
+        displayDate: new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+      }))
+      .sort((a, b) => {
+        // Sort by liters descending, then by date ascending
+        if (b.liters !== a.liters) return b.liters - a.liters
+        return new Date(a.date).getTime() - new Date(b.date).getTime()
+      })
 
-  // Find individual record for most liters in a single day by one person
-  const individualRecord: { name: string; liters: number; displayDate: string } | null = (() : { name: string; liters: number; displayDate: string } | null => {
-    if (!data?.entries) return null
+    if (dailyRecords.length === 0) return []
+
+    // Get unique top 2 values
+    const uniqueValues = [...new Set(dailyRecords.map(r => r.liters))].slice(0, 2)
+
+    // Get all records with those top values, limit to 3 total
+    return dailyRecords
+      .filter(r => uniqueValues.includes(r.liters))
+      .slice(0, 3)
+  })()
+
+  // Find top individual records for liters (up to 3 records with top 2 unique values)
+  const topIndividualRecords = (() : Array<{ name: string; liters: number; displayDate: string; date: string }> => {
+    if (!data?.entries) return []
 
     // Group by person and date
     const personDayTotals = new Map<string, { liters: number; date: string; name: string }>()
@@ -48,19 +69,29 @@ export function LitersMetrics({ data }: LitersMetricsProps) {
       }
     })
 
-    // Find max
-    let max: { name: string; liters: number; displayDate: string } | null = null
-    personDayTotals.forEach(value => {
-      if (!max || value.liters > max.liters) {
-        max = {
-          name: value.name,
-          liters: value.liters,
-          displayDate: new Date(value.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-        }
-      }
-    })
+    // Convert to array and sort
+    const records = Array.from(personDayTotals.values())
+      .map(value => ({
+        name: value.name,
+        liters: value.liters,
+        date: value.date,
+        displayDate: new Date(value.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+      }))
+      .sort((a, b) => {
+        // Sort by liters descending, then by date ascending
+        if (b.liters !== a.liters) return b.liters - a.liters
+        return new Date(a.date).getTime() - new Date(b.date).getTime()
+      })
 
-    return max
+    if (records.length === 0) return []
+
+    // Get unique top 2 values
+    const uniqueValues = [...new Set(records.map(r => r.liters))].slice(0, 2)
+
+    // Get all records with those top values, limit to 3 total
+    return records
+      .filter(r => uniqueValues.includes(r.liters))
+      .slice(0, 3)
   })()
 
   // Transform progression data for chart
@@ -75,10 +106,25 @@ export function LitersMetrics({ data }: LitersMetricsProps) {
             <CardDescription>Most liters consumed in one day</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{dayWithMostLiters?.daily?.toFixed(1) || "0.0"}L</div>
-            <p className="text-xs text-muted-foreground">
-              {dayWithMostLiters?.date || "No data"}
-            </p>
+            {topGlobalDays.length > 0 ? (
+              <div className="space-y-1">
+                <div>
+                  <div className="text-2xl font-bold">{topGlobalDays[0].liters.toFixed(1)}L</div>
+                  <p className="text-xs text-muted-foreground">{topGlobalDays[0].displayDate}</p>
+                </div>
+                {topGlobalDays.slice(1).map((record, idx) => (
+                  <div key={idx} className="pt-1 border-t border-border/50">
+                    <div className={idx === 0 ? "text-lg font-semibold text-muted-foreground" : "text-sm font-medium text-muted-foreground"}>{record.liters.toFixed(1)}L</div>
+                    <p className="text-xs text-muted-foreground">{record.displayDate}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div>
+                <div className="text-2xl font-bold">0.0L</div>
+                <p className="text-xs text-muted-foreground">No data</p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -88,10 +134,29 @@ export function LitersMetrics({ data }: LitersMetricsProps) {
             <CardDescription>Most liters by one person in a day</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{individualRecord?.liters?.toFixed(1) || "0.0"}L</div>
-            <p className="text-xs text-muted-foreground">
-              {individualRecord ? `${individualRecord.name} on ${individualRecord.displayDate}` : "No data"}
-            </p>
+            {topIndividualRecords.length > 0 ? (
+              <div className="space-y-1">
+                <div>
+                  <div className="text-2xl font-bold">{topIndividualRecords[0].liters.toFixed(1)}L</div>
+                  <p className="text-xs text-muted-foreground">
+                    {topIndividualRecords[0].name} on {topIndividualRecords[0].displayDate}
+                  </p>
+                </div>
+                {topIndividualRecords.slice(1).map((record, idx) => (
+                  <div key={idx} className="pt-1 border-t border-border/50">
+                    <div className={idx === 0 ? "text-lg font-semibold text-muted-foreground" : "text-sm font-medium text-muted-foreground"}>{record.liters.toFixed(1)}L</div>
+                    <p className="text-xs text-muted-foreground">
+                      {record.name} on {record.displayDate}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div>
+                <div className="text-2xl font-bold">0.0L</div>
+                <p className="text-xs text-muted-foreground">No data</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -102,61 +167,63 @@ export function LitersMetrics({ data }: LitersMetricsProps) {
           <CardDescription>Cumulative progression over time</CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer
-            config={{
-              cumulative: {
-                label: "Cumulative Liters",
-                color: "var(--chart-3)",
-              },
-              daily: {
-                label: "Daily Liters",
-                color: "var(--chart-4)",
-              },
-            }}
-            className="h-[300px]"
-          >
-            <RechartsPrimitive.ComposedChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-              <RechartsPrimitive.CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <RechartsPrimitive.XAxis
-                dataKey="date"
-                stroke="var(--muted-foreground)"
-                fontSize={12}
-                angle={-45}
-                textAnchor="end"
-                height={60}
-              />
-              <RechartsPrimitive.YAxis yAxisId="left" stroke="var(--muted-foreground)" fontSize={12} />
-              <RechartsPrimitive.YAxis
-                yAxisId="right"
-                orientation="right"
-                stroke="var(--muted-foreground)"
-                fontSize={12}
-              />
-              <ChartTooltip
-                content={(props) => (
-                  <ChartTooltipContent
-                    {...props}
-                    valueFormatter={(value) => `${Number(value).toFixed(1)}L`}
-                  />
-                )}
-              />
-              <RechartsPrimitive.Line
-                yAxisId="left"
-                type="monotone"
-                dataKey="cumulative"
-                stroke="var(--chart-3)"
-                strokeWidth={2}
-                dot={{ fill: "var(--chart-3)", strokeWidth: 2, r: 3 }}
-              />
-              <RechartsPrimitive.Bar
-                yAxisId="right"
-                dataKey="daily"
-                fill="var(--chart-4)"
-                opacity={0.6}
-                radius={[2, 2, 0, 0]}
-              />
-            </RechartsPrimitive.ComposedChart>
-          </ChartContainer>
+          <div style={{ width: '100%', height: 400 }}>
+            <LineChart
+              dataset={chartData}
+              width={undefined}
+              height={400}
+              xAxis={[{
+                dataKey: 'date',
+                scaleType: 'point',
+                tickLabelStyle: {
+                  angle: -45,
+                  textAnchor: 'end',
+                  fontSize: 12,
+                }
+              }]}
+              yAxis={[
+                {
+                  id: 'cumulative',
+                  scaleType: 'linear',
+                  valueFormatter: (value) => `${value.toFixed(1)}L`
+                },
+                {
+                  id: 'daily',
+                  scaleType: 'linear',
+                  valueFormatter: (value) => `${value.toFixed(1)}L`
+                }
+              ]}
+              series={[
+                {
+                  dataKey: 'cumulative',
+                  label: 'Cumulative Liters',
+                  color: 'hsl(var(--chart-3))',
+                  showMark: true,
+                  curve: 'linear',
+                  valueFormatter: (value) => `${value?.toFixed(1)}L`
+                },
+                {
+                  dataKey: 'daily',
+                  label: 'Daily Liters',
+                  color: 'hsl(var(--chart-4))',
+                  type: 'bar' as any,
+                  showMark: false,
+                  valueFormatter: (value) => `${value?.toFixed(1)}L`
+                }
+              ]}
+              grid={{ horizontal: true }}
+              slotProps={{
+                legend: {
+                  direction: 'column' as any,
+                  position: { vertical: 'top', horizontal: 'center' }
+                }
+              }}
+              margin={{ top: 60, right: 30, left: 60, bottom: 80 }}
+              sx={{
+                width: '100%',
+              }}
+            />
+          </div>
         </CardContent>
       </Card>
     </div>

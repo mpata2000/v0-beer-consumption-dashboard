@@ -3,7 +3,6 @@ import { fetchBeerData } from "@/lib/data-fetcher"
 
 // This is now a Server Component - fetches data on the server
 export default async function BeerDashboard() {
-  // Fetch data directly on the server (no API route needed!)
   const data = await fetchBeerData()
 
   return (

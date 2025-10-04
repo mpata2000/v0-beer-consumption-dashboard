@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { ResponsiveContainer } from "recharts"
 
 // Chart configuration context
 const ChartContext = React.createContext<{
@@ -32,9 +31,7 @@ const ChartContainer = React.forwardRef<HTMLDivElement, ChartContainerProps>(
           }
           {...props}
         >
-          <ResponsiveContainer width="100%" height="100%">
-            {children as any}
-          </ResponsiveContainer>
+          {children}
         </div>
       </ChartContext.Provider>
     )
@@ -113,4 +110,4 @@ const ChartTooltip: React.FC<ChartTooltipProps> = ({ content: Content = ChartToo
   return <Content {...props} />
 }
 
-export { ChartContainer, ChartTooltip, ChartTooltipContent }
+export { ChartContainer, ChartTooltip, ChartTooltipContent, ChartContext }

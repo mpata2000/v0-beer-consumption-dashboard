@@ -1,11 +1,9 @@
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import * as RechartsPrimitive from "recharts"
 import { Badge } from "@/components/ui/badge"
 import { DashboardData } from "@/lib/types"
-import { getGlobalBeerBrands, getGlobalBeerTypes } from "@/lib/data-utils"
+import { getGlobalBeerBrands, getGlobalBeerTypes, calculateTotalStats } from "@/lib/data-utils"
 
 interface BeerInsightsProps {
   data: DashboardData | null
@@ -14,31 +12,25 @@ interface BeerInsightsProps {
 export function BeerInsights({ data }: BeerInsightsProps) {
   const globalBrands: Record<string, number> = getGlobalBeerBrands(data)
   const globalTypes: Record<string, number> = getGlobalBeerTypes(data)
+  const totalBeers: number = calculateTotalStats(data).totalBeers
 
-  // Expanded color palette for more variety
-  const colors = [
-    "hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))",
-    "hsl(var(--chart-4))", "hsl(var(--chart-5))",
-    "#8b5cf6", "#ec4899", "#f97316", "#14b8a6", "#6366f1",
-    "#f59e0b", "#10b981", "#3b82f6", "#ef4444", "#84cc16"
-  ]
-
-  const brandData = Object.entries(globalBrands)
-    .map(([name, value], index) => ({
+  // Transform brands to list with percentages
+  const brandList = Object.entries(globalBrands)
+    .map(([name, value]) => ({
       name,
-      value: value as number,
-      fill: colors[index % colors.length],
+      count: value as number,
+      percentage: totalBeers > 0 ? ((value as number / totalBeers) * 100).toFixed(1) : '0.0'
     }))
-    .sort((a, b) => b.value - a.value)
+    .sort((a, b) => b.count - a.count)
 
-  // Calculate variety distribution
-  const varietyData = Object.entries(globalTypes)
-    .map(([name, value], index) => ({
+  // Transform varieties to list with percentages
+  const varietyList = Object.entries(globalTypes)
+    .map(([name, value]) => ({
       name,
-      value: value as number,
-      fill: colors[index % colors.length],
+      count: value as number,
+      percentage: totalBeers > 0 ? ((value as number / totalBeers) * 100).toFixed(1) : '0.0'
     }))
-    .sort((a, b) => b.value - a.value)
+    .sort((a, b) => b.count - a.count)
 
   // Calculate top 3 brands per member using playersStats
   const playersStats: Record<string, any> = data?.playersStats || {}
@@ -66,84 +58,50 @@ export function BeerInsights({ data }: BeerInsightsProps) {
         <Card>
           <CardHeader>
             <CardTitle>Beer Brands</CardTitle>
-            <CardDescription>Distribution of beer brands consumed</CardDescription>
+            <CardDescription>Distribution of beer brands consumed (sorted by frequency)</CardDescription>
           </CardHeader>
           <CardContent>
-            <ChartContainer
-              config={{
-                value: {
-                  label: "Beers",
-                },
-              }}
-              className="h-[350px]"
-            >
-              <RechartsPrimitive.PieChart>
-                <RechartsPrimitive.Pie
-                  data={brandData}
-                  cx="50%"
-                  cy="45%"
-                  innerRadius={40}
-                  outerRadius={90}
-                  paddingAngle={2}
-                  dataKey="value"
-                  label={({ name, percent }: any) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  labelLine={{ stroke: 'var(--muted-foreground)', strokeWidth: 1 }}
-                >
-                  {brandData.map((entry, index) => (
-                    <RechartsPrimitive.Cell key={`cell-${index}`} fill={entry.fill} />
-                  ))}
-                </RechartsPrimitive.Pie>
-                <ChartTooltip content={ChartTooltipContent} />
-                <RechartsPrimitive.Legend
-                  verticalAlign="bottom"
-                  height={36}
-                  iconType="circle"
-                  wrapperStyle={{ fontSize: '12px' }}
-                />
-              </RechartsPrimitive.PieChart>
-            </ChartContainer>
+            <div className="space-y-2 max-h-[400px] overflow-y-auto">
+              {brandList.map((brand, index) => (
+                <div key={brand.name} className="flex items-center justify-between p-2 rounded-lg bg-muted/30 border border-border/50">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <Badge variant="outline" className="w-7 h-7 p-0 flex items-center justify-center text-xs flex-shrink-0">
+                      {index + 1}
+                    </Badge>
+                    <span className="font-medium text-sm truncate">{brand.name}</span>
+                  </div>
+                  <div className="text-right flex-shrink-0 ml-2">
+                    <div className="text-sm font-semibold">{brand.count}</div>
+                    <div className="text-xs text-muted-foreground">{brand.percentage}%</div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
             <CardTitle>Beer Varieties</CardTitle>
-            <CardDescription>Types of beer consumed</CardDescription>
+            <CardDescription>Types of beer consumed (sorted by frequency)</CardDescription>
           </CardHeader>
           <CardContent>
-            <ChartContainer
-              config={{
-                value: {
-                  label: "Beers",
-                },
-              }}
-              className="h-[350px]"
-            >
-              <RechartsPrimitive.PieChart>
-                <RechartsPrimitive.Pie
-                  data={varietyData}
-                  cx="50%"
-                  cy="45%"
-                  innerRadius={40}
-                  outerRadius={90}
-                  paddingAngle={2}
-                  dataKey="value"
-                  label={({ name, percent }: any) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  labelLine={{ stroke: 'var(--muted-foreground)', strokeWidth: 1 }}
-                >
-                  {varietyData.map((entry, index) => (
-                    <RechartsPrimitive.Cell key={`cell-${index}`} fill={entry.fill} />
-                  ))}
-                </RechartsPrimitive.Pie>
-                <ChartTooltip content={ChartTooltipContent} />
-                <RechartsPrimitive.Legend
-                  verticalAlign="bottom"
-                  height={36}
-                  iconType="circle"
-                  wrapperStyle={{ fontSize: '12px' }}
-                />
-              </RechartsPrimitive.PieChart>
-            </ChartContainer>
+            <div className="space-y-2 max-h-[400px] overflow-y-auto">
+              {varietyList.map((variety, index) => (
+                <div key={variety.name} className="flex items-center justify-between p-2 rounded-lg bg-muted/30 border border-border/50">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <Badge variant="outline" className="w-7 h-7 p-0 flex items-center justify-center text-xs flex-shrink-0">
+                      {index + 1}
+                    </Badge>
+                    <span className="font-medium text-sm truncate">{variety.name}</span>
+                  </div>
+                  <div className="text-right flex-shrink-0 ml-2">
+                    <div className="text-sm font-semibold">{variety.count}</div>
+                    <div className="text-xs text-muted-foreground">{variety.percentage}%</div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
       </div>

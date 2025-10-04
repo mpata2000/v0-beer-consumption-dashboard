@@ -11,7 +11,6 @@ import { DailyMetrics } from "@/components/daily-metrics"
 import { LitersMetrics } from "@/components/liters-metrics"
 import { BeerInsights } from "@/components/beer-insights"
 import { SocialInsights } from "@/components/social-insights"
-import { CategoryCharts } from "@/components/category-charts"
 import { useRouter } from "next/navigation"
 import { DashboardData } from "@/lib/types"
 
@@ -109,11 +108,6 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
             <div className="space-y-6">
               <h2 className="text-2xl font-bold">Social & Location Insights</h2>
               <SocialInsights data={initialData} />
-            </div>
-
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold">Category Analysis</h2>
-              <CategoryCharts data={initialData} />
             </div>
           </TabsContent>
         </Tabs>
