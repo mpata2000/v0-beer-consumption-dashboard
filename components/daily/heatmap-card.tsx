@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { DashboardData } from "@/lib/types";
 import { parseIsoDateToUTC } from "@/lib/utils";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import * as d3 from "d3";
 
 interface HeatmapCardProps {
@@ -36,6 +36,25 @@ export function HeatmapCard({ data }: HeatmapCardProps) {
   const entries = data?.entries || [];
   const dayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const [hoveredCell, setHoveredCell] = useState<InteractionData | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [dimensions, setDimensions] = useState({ width: 700, height: 300 });
+
+  // Responsive dimensions
+  useEffect(() => {
+    const updateDimensions = () => {
+      if (containerRef.current) {
+        const width = containerRef.current.offsetWidth;
+        setDimensions({
+          width: Math.max(width, 280),
+          height: 300,
+        });
+      }
+    };
+
+    updateDimensions();
+    window.addEventListener("resize", updateDimensions);
+    return () => window.removeEventListener("resize", updateDimensions);
+  }, []);
 
   function getIsoDayIndex(dateStr: string): number {
     const d = parseIsoDateToUTC(dateStr);
@@ -92,11 +111,9 @@ export function HeatmapCard({ data }: HeatmapCardProps) {
     };
   }, [heatmapData]);
 
-  // Responsive dimensions
-  const width = 700;
-  const height = 300;
-  const boundsWidth = width - MARGIN.right - MARGIN.left;
-  const boundsHeight = height - MARGIN.top - MARGIN.bottom;
+  // Calculate bounds
+  const boundsWidth = dimensions.width - MARGIN.right - MARGIN.left;
+  const boundsHeight = dimensions.height - MARGIN.top - MARGIN.bottom;
 
   // Scales
   const xScale = useMemo(() => {
@@ -167,7 +184,7 @@ export function HeatmapCard({ data }: HeatmapCardProps) {
             y={yPos + yScale.bandwidth() / 2}
             textAnchor="middle"
             dominantBaseline="middle"
-            fontSize={11}
+            fontSize={14}
             fontWeight={500}
             fill={d.value > max * 0.6 ? "white" : "black"}
             opacity={cellOpacity}
@@ -221,21 +238,20 @@ export function HeatmapCard({ data }: HeatmapCardProps) {
   });
 
   return (
-    <Card>
+    <Card className="w-full h-full flex flex-col">
       <CardHeader>
         <CardTitle>Heatmap: Day of Week × Time Range</CardTitle>
         <CardDescription>Counts across the full dataset</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1">
         {timeRanges.length === 0 ? (
           <div className="text-sm text-muted-foreground">
             No time range data
           </div>
         ) : (
           <div className="relative">
-            <div className="overflow-x-auto">
-              <div className="min-w-[280px] sm:min-w-[500px] md:min-w-[600px]">
-                <svg width={width} height={height}>
+            <div ref={containerRef} className="w-full">
+              <svg width={dimensions.width} height={dimensions.height}>
                   <g
                     width={boundsWidth}
                     height={boundsHeight}
@@ -246,7 +262,6 @@ export function HeatmapCard({ data }: HeatmapCardProps) {
                     {yLabels}
                   </g>
                 </svg>
-              </div>
             </div>
 
             {/* Tooltip */}
