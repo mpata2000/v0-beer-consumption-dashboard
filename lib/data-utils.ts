@@ -1,9 +1,12 @@
 import { DashboardData, LeaderboardItem } from "@/lib/types"
+import { parseIsoDateToUTC } from "@/lib/utils"
 
 export function calculateDaysSinceStart(startDate: string): number {
-  const start = new Date(startDate)
-  const today = new Date()
-  return Math.floor((today.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
+  // Use UTC-safe parsing to avoid timezone off-by-one
+  const start = parseIsoDateToUTC(startDate)
+  const now = new Date()
+  const todayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
+  return Math.floor((todayUTC.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
 }
 
 export function calculateTotalStats(data: DashboardData | null) {

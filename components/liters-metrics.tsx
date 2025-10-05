@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { LineChart } from "@mui/x-charts/LineChart"
 import { DashboardData } from "@/lib/types"
 import { getGlobalMilliLitersPerDay } from "@/lib/data-utils"
+import { compareIsoDatesAsc, formatDateDDMMYYYY } from "@/lib/utils"
 
 interface LitersMetricsProps {
   data: DashboardData | null
@@ -11,14 +12,14 @@ interface LitersMetricsProps {
 
 export function LitersMetrics({ data }: LitersMetricsProps) {
   const perDay: Record<string, number> = getGlobalMilliLitersPerDay(data)
-  const chartDates = Object.keys(perDay).sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
+  const chartDates = Object.keys(perDay).sort(compareIsoDatesAsc)
   let cumulative = 0
   const chartData = chartDates.map((dateStr) => {
     const dailyMl = perDay[dateStr] || 0
     const daily = dailyMl / 1000
     cumulative += daily
     return {
-      date: new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+      date: formatDateDDMMYYYY(dateStr),
       cumulative,
       daily,
     }
@@ -30,12 +31,12 @@ export function LitersMetrics({ data }: LitersMetricsProps) {
       .map(([date, ml]) => ({
         date,
         liters: (ml as number) / 1000,
-        displayDate: new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+        displayDate: formatDateDDMMYYYY(date)
       }))
       .sort((a, b) => {
         // Sort by liters descending, then by date ascending
         if (b.liters !== a.liters) return b.liters - a.liters
-        return new Date(a.date).getTime() - new Date(b.date).getTime()
+        return compareIsoDatesAsc(a.date, b.date)
       })
 
     if (dailyRecords.length === 0) return []
@@ -75,12 +76,12 @@ export function LitersMetrics({ data }: LitersMetricsProps) {
         name: value.name,
         liters: value.liters,
         date: value.date,
-        displayDate: new Date(value.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+        displayDate: formatDateDDMMYYYY(value.date),
       }))
       .sort((a, b) => {
         // Sort by liters descending, then by date ascending
         if (b.liters !== a.liters) return b.liters - a.liters
-        return new Date(a.date).getTime() - new Date(b.date).getTime()
+        return compareIsoDatesAsc(a.date, b.date)
       })
 
     if (records.length === 0) return []
@@ -179,18 +180,23 @@ export function LitersMetrics({ data }: LitersMetricsProps) {
                   angle: -45,
                   textAnchor: 'end',
                   fontSize: 12,
+                  fill: 'hsl(var(--foreground))',
                 }
               }]}
               yAxis={[
                 {
                   id: 'cumulative',
                   scaleType: 'linear',
-                  valueFormatter: (value) => `${value.toFixed(1)}L`
+                  valueFormatter: (value) => `${value.toFixed(1)}L`,
+                  tickLabelStyle: { fill: 'hsl(var(--foreground))' },
+                  labelStyle: { fill: 'hsl(var(--foreground))' },
                 },
                 {
                   id: 'daily',
                   scaleType: 'linear',
-                  valueFormatter: (value) => `${value.toFixed(1)}L`
+                  valueFormatter: (value) => `${value.toFixed(1)}L`,
+                  tickLabelStyle: { fill: 'hsl(var(--foreground))' },
+                  labelStyle: { fill: 'hsl(var(--foreground))' },
                 }
               ]}
               series={[
@@ -211,16 +217,33 @@ export function LitersMetrics({ data }: LitersMetricsProps) {
                   valueFormatter: (value) => `${value?.toFixed(1)}L`
                 }
               ]}
-              grid={{ horizontal: true }}
+              grid={{ horizontal: true, vertical: false }}
               slotProps={{
                 legend: {
                   direction: 'column' as any,
-                  position: { vertical: 'top', horizontal: 'center' }
+                  position: { vertical: 'top', horizontal: 'center' },
                 }
               }}
               margin={{ top: 60, right: 30, left: 60, bottom: 80 }}
               sx={{
                 width: '100%',
+                '--ChartsLegend-itemMarkSize': 12,
+                '--ChartsTooltip-background': 'hsl(var(--popover))',
+                '--ChartsTooltip-text': 'hsl(var(--popover-foreground))',
+                '--ChartsAxis-gridColor': 'hsl(var(--border))',
+                '--ChartsAxis-lineColor': 'hsl(var(--foreground))',
+                '& .MuiChartsAxis-line': {
+                  stroke: 'hsl(var(--foreground))',
+                },
+                '& .MuiChartsAxis-tick': {
+                  stroke: 'hsl(var(--foreground))',
+                },
+                '& .MuiChartsLegend-series tspan': {
+                  fill: 'hsl(var(--foreground))',
+                },
+                '& .MuiChartsLegend-series': {
+                  marginBottom: '4px',
+                },
               }}
             />
           </div>
