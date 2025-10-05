@@ -8,7 +8,6 @@ import { BeerIcon, CalendarIcon, RefreshCwIcon, ExternalLinkIcon, BarChartIcon, 
 import { StatsOverview } from "@/components/stats-overview"
 import { Leaderboard } from "@/components/leaderboard"
 import { DailyMetrics } from "@/components/daily-metrics"
-import { LitersMetrics } from "@/components/liters-metrics"
 import { BeerInsights } from "@/components/beer-insights"
 import { SocialInsights } from "@/components/social-insights"
 import { useRouter } from "next/navigation"
@@ -89,13 +88,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
 
           <TabsContent value="daily-metrics" className="space-y-8">
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold">Daily Beer Consumption Metrics</h2>
               <DailyMetrics data={initialData} />
-            </div>
-
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold">Daily Liter Consumption Metrics</h2>
-              <LitersMetrics data={initialData} />
             </div>
           </TabsContent>
 

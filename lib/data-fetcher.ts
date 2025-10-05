@@ -1,46 +1,12 @@
 import {
   GoogleSheetsValuesResponse,
-  BeerEntry,
   DashboardData,
 } from "@/lib/types"
 
-// Column positions in the Google Sheet
-const TIMESTAMP_POSITION = 0
-const BRAND_POSITION = 1
-const TYPE_POSITION = 2
-const DATE_POSITION = 3
-const LOCATION_POSITION = 4
-const EVENT_POSITION = 5
-const ALONE_POSITION = 6
-const EMAIL_POSITION = 7
-const AMOUNT_POSITION = 8
-const FOOD_POSITION = 9
-const TIME_RANGE_POSITION = 10
-const EXTRA_POSITION = 11
+import { BeerEntry, newBeerEntryFromRow } from "@/lib/beer-entry"
 
-// Map email addresses to display names
-const EMAIL_TO_NAME: Record<string, string> = {
-  "jmartinezmadero@gmail.com": "Javi",
-  "mpata2000@gmail.com": "Pata",
-  "juan.tardieu@gmail.com": "Juani",
-  "joaquintardieu@gmail.com": "Joaquito",
-  "juancsaravia22@gmail.com": "Juancru",
-}
 
-// Parse dd/mm/yyyy format and return normalized yyyy-mm-dd
-function parseDateDDMMYYYY(dateStr: string): string {
-  if (!dateStr) return ""
 
-  const parts = dateStr.split("/")
-  if (parts.length !== 3) return dateStr // Return as-is if not in expected format
-
-  const day = parts[0].padStart(2, "0")
-  const month = parts[1].padStart(2, "0")
-  const year = parts[2]
-
-  // Return in yyyy-mm-dd format for proper sorting
-  return `${year}-${month}-${day}`
-}
 
 interface PlayerStats {
   alias: string
@@ -58,7 +24,6 @@ function processSheetData(rawData: string[][] | undefined): DashboardData {
   if (!rawData || rawData.length < 2) {
     return {
       entries: [],
-      startDate: "2025-02-01",
       totalBeers: 0,
       totalMilliliters: 0,
       globalBeerBrands: {},
@@ -88,49 +53,24 @@ function processSheetData(rawData: string[][] | undefined): DashboardData {
   const globalMilliLitersPerDay: Record<string, number> = {}
 
   for (const row of rows) {
-    const email = row[EMAIL_POSITION] || ""
-    const brand = row[BRAND_POSITION] || ""
-    const variety = row[TYPE_POSITION] || ""
-    const rawDate = row[DATE_POSITION] || ""
-    const normalizedDate = parseDateDDMMYYYY(rawDate) // Convert dd/mm/yyyy to yyyy-mm-dd
-    const location = row[LOCATION_POSITION] || ""
-    const event = row[EVENT_POSITION] || ""
-    const alone = row[ALONE_POSITION] !== "No"
-    const amount = parseInt(row[AMOUNT_POSITION] || "0", 10)
-    const name = EMAIL_TO_NAME[email] || email.split("@")[0] || "Unknown"
-
+    const beerEntry = newBeerEntryFromRow(row)
     // Add to entries array (store normalized date for sorting/grouping)
-    entries.push({
-      timestamp: row[TIMESTAMP_POSITION] || "",
-      brand,
-      variety,
-      date: normalizedDate, // Store as yyyy-mm-dd
-      location,
-      event,
-      alone,
-      email,
-      name,
-      amount,
-      food: row[FOOD_POSITION] || "",
-      timeRange: row[TIME_RANGE_POSITION] || "",
-      extra: row[EXTRA_POSITION] || "",
-    })
-
+    entries.push(beerEntry)
     // Global aggregations (use normalized date)
     totalBeers += 1
-    totalMilliliters += amount
-    globalBeerBrands[brand] = (globalBeerBrands[brand] || 0) + 1
-    globalBeerTypes[variety] = (globalBeerTypes[variety] || 0) + 1
-    globalBeerEvents[event] = (globalBeerEvents[event] || 0) + 1
-    globalBeerLocations[location] = (globalBeerLocations[location] || 0) + 1
-    if (alone) globalBeerAlone += 1
-    globalBeerPerDay[normalizedDate] = (globalBeerPerDay[normalizedDate] || 0) + 1
-    globalMilliLitersPerDay[normalizedDate] = (globalMilliLitersPerDay[normalizedDate] || 0) + amount
+    totalMilliliters += beerEntry.amount
+    globalBeerBrands[beerEntry.brand] = (globalBeerBrands[beerEntry.brand] || 0) + 1
+    globalBeerTypes[beerEntry.variety] = (globalBeerTypes[beerEntry.variety] || 0) + 1
+    globalBeerEvents[beerEntry.event] = (globalBeerEvents[beerEntry.event] || 0) + 1
+    globalBeerLocations[beerEntry.location] = (globalBeerLocations[beerEntry.location] || 0) + 1
+    if (beerEntry.alone) globalBeerAlone += 1
+    globalBeerPerDay[beerEntry.date] = (globalBeerPerDay[beerEntry.date] || 0) + 1
+    globalMilliLitersPerDay[beerEntry.date] = (globalMilliLitersPerDay[beerEntry.date] || 0) + beerEntry.amount
 
     // Player-specific aggregations
-    if (!playersStats[email]) {
-      playersStats[email] = {
-        alias: name,
+    if (!playersStats[beerEntry.email]) {
+      playersStats[beerEntry.email] = {
+        alias: beerEntry.name,
         totalBeers: 0,
         totalMilliliters: 0,
         drankAlone: 0,
@@ -142,20 +82,19 @@ function processSheetData(rawData: string[][] | undefined): DashboardData {
       }
     }
 
-    const playerStats = playersStats[email]
+    const playerStats = playersStats[beerEntry.email]
     playerStats.totalBeers += 1
-    playerStats.totalMilliliters += amount
-    playerStats.drankAlone += alone ? 1 : 0
-    playerStats.placeCounter[location] = (playerStats.placeCounter[location] || 0) + 1
-    playerStats.beerTypes[variety] = (playerStats.beerTypes[variety] || 0) + 1
-    playerStats.beerBrands[brand] = (playerStats.beerBrands[brand] || 0) + 1
-    playerStats.beerPerDay[normalizedDate] = (playerStats.beerPerDay[normalizedDate] || 0) + 1
-    playerStats.litersPerDay[normalizedDate] = (playerStats.litersPerDay[normalizedDate] || 0) + amount
+    playerStats.totalMilliliters += beerEntry.amount
+    playerStats.drankAlone += beerEntry.alone ? 1 : 0
+    playerStats.placeCounter[beerEntry.location] = (playerStats.placeCounter[beerEntry.location] || 0) + 1
+    playerStats.beerTypes[beerEntry.variety] = (playerStats.beerTypes[beerEntry.variety] || 0) + 1
+    playerStats.beerBrands[beerEntry.brand] = (playerStats.beerBrands[beerEntry.brand] || 0) + 1
+    playerStats.beerPerDay[beerEntry.date] = (playerStats.beerPerDay[beerEntry.date] || 0) + 1
+    playerStats.litersPerDay[beerEntry.date] = (playerStats.litersPerDay[beerEntry.date] || 0) + beerEntry.amount
   }
 
   return {
     entries,
-    startDate: "2025-02-01",
     totalBeers,
     totalMilliliters,
     globalBeerBrands,

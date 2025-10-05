@@ -4,15 +4,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { PieChart } from "@mui/x-charts/PieChart"
 import { Badge } from "@/components/ui/badge"
 import { DashboardData } from "@/lib/types"
-import { getGlobalAloneCount, calculateTotalStats, getAllPlayerEmails, getPlayerStats } from "@/lib/data-utils"
+import { DashboardModel } from "@/lib/dashboard-model"
 
 interface SocialInsightsProps {
   data: DashboardData | null
 }
 
 export function SocialInsights({ data }: SocialInsightsProps) {
-  const globalBeerAlone: number = getGlobalAloneCount(data)
-  const totalBeers: number = calculateTotalStats(data).totalBeers
+  const model = new DashboardModel(data)
+  const globalBeerAlone: number = model.globalAloneCount()
+  const totalBeers: number = model.totalStats().totalBeers
   const aloneCounts = {
     Alone: globalBeerAlone,
     "With Others": Math.max(totalBeers - globalBeerAlone, 0),
@@ -32,10 +33,10 @@ export function SocialInsights({ data }: SocialInsightsProps) {
   }))
 
   // Calculate who drinks alone most frequently using player stats
-  const emails = getAllPlayerEmails(data)
+  const emails = model.allPlayerEmails()
   const memberAloneStats = Object.fromEntries(
     emails.map(email => {
-      const stats = getPlayerStats(data, email)
+      const stats = model.playerStats(email)
       const playerEntry = data?.entries.find(e => e.email === email)
       return [
         playerEntry?.name || email.split("@")[0],

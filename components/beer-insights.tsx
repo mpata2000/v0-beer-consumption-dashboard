@@ -3,16 +3,17 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { DashboardData } from "@/lib/types"
-import { getGlobalBeerBrands, getGlobalBeerTypes, calculateTotalStats } from "@/lib/data-utils"
+import { DashboardModel } from "@/lib/dashboard-model"
 
 interface BeerInsightsProps {
   data: DashboardData | null
 }
 
 export function BeerInsights({ data }: BeerInsightsProps) {
-  const globalBrands: Record<string, number> = getGlobalBeerBrands(data)
-  const globalTypes: Record<string, number> = getGlobalBeerTypes(data)
-  const totalBeers: number = calculateTotalStats(data).totalBeers
+  const model = new DashboardModel(data)
+  const globalBrands: Record<string, number> = model.globalBeerBrands()
+  const globalTypes: Record<string, number> = model.globalBeerTypes()
+  const totalBeers: number = model.totalStats().totalBeers
 
   // Transform brands to list with percentages
   const brandList = Object.entries(globalBrands)

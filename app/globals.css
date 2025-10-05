@@ -87,4 +87,19 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* MUI X-Charts global styles */
+  .MuiChartsAxis-tickLabel,
+  .MuiChartsAxis-label,
+  .MuiChartsLegend-series text,
+  .MuiChartsLegend-mark + text,
+  .MuiChartsTooltip-root {
+    fill: var(--foreground) !important;
+    color: var(--foreground) !important;
+  }
+
+  .MuiChartsAxis-line,
+  .MuiChartsAxis-tick {
+    stroke: var(--muted-foreground) !important;
+  }
 }

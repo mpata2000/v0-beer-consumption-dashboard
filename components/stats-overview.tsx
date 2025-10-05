@@ -3,14 +3,14 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { BeerIcon, DropletIcon } from "lucide-react"
 import { DashboardData } from "@/lib/types"
-import { calculateTotalStats } from "@/lib/data-utils"
+import { DashboardModel } from "@/lib/dashboard-model"
 
 interface StatsOverviewProps {
   data: DashboardData | null
 }
 
 export function StatsOverview({ data }: StatsOverviewProps) {
-  const stats = calculateTotalStats(data)
+  const stats = new DashboardModel(data).totalStats()
 
   console.log("[v0] Stats data:", stats)
 

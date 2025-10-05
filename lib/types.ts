@@ -1,23 +1,9 @@
+import { BeerEntry } from "@/lib/beer-entry"
+
 export interface GoogleSheetsValuesResponse {
   range?: string
   majorDimension?: string
   values?: string[][]
-}
-
-export interface BeerEntry {
-  timestamp: string
-  brand: string
-  variety: string
-  date: string
-  location: string
-  event: string
-  alone: boolean
-  email: string
-  name: string
-  amount: number
-  food: string
-  timeRange: string
-  extra: string
 }
 
 export interface LeaderboardItem {
@@ -27,14 +13,6 @@ export interface LeaderboardItem {
   beers: number
   liters: number
   avgPerDay: number
-}
-
-export interface ProgressionPoint {
-  date: string
-  beers: number
-  liters: number
-  cumulative: number
-  cumulativeLiters: number
 }
 
 export interface PlayerStats {
@@ -51,7 +29,6 @@ export interface PlayerStats {
 
 export interface DashboardData {
   entries: BeerEntry[]
-  startDate: string // "2025-02-01"
   // Pre-computed aggregations (calculated in one pass for efficiency)
   totalBeers: number
   totalMilliliters: number
