@@ -262,11 +262,6 @@ export function DailyMetrics({ data, hideChart = false }: DailyMetricsProps) {
                     </div>
                   ))}
                 </div>
-                <div className="flex items-center gap-2 mt-3 text-xs text-muted-foreground">
-                  <span>Low</span>
-                  <div className="flex-1 h-2 bg-gradient-to-r from-[rgba(59,130,246,0.2)] to-[rgba(59,130,246,0.8)] rounded" />
-                  <span>High</span>
-                </div>
               </div>
             </div>
           </CardContent>
