@@ -49,3 +49,22 @@ export function monthMetaFromKey(monthKey: string): { year: number; monthIndex: 
   const firstWeekdayMondayFirst = (js + 6) % 7
   return { year, monthIndex, daysInMonth, firstWeekdayMondayFirst }
 }
+
+// String normalization utilities
+export function normalizeString(str: string): string {
+  // Lowercase and trim spaces
+  return str.toLowerCase().trim()
+}
+
+export function toTitleCase(str: string): string {
+  // Convert to title case
+  return str
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ')
+}
+
+export function normalizeAndFormat(str: string): string {
+  // Normalize then format as title case
+  return toTitleCase(normalizeString(str))
+}

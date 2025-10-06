@@ -104,10 +104,7 @@ export function CalendarHeatmapCard({ model }: CalendarHeatmapCardProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Calendar Heatmap</CardTitle>
-        <CardDescription>
-          Select a month to see beers per day
-        </CardDescription>
+        <CardTitle>Calendar de Birras</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex items-center justify-between mb-4 gap-4">
@@ -144,10 +141,9 @@ export function CalendarHeatmapCard({ model }: CalendarHeatmapCardProps) {
                       key={ci}
                       className="h-8 sm:h-10 rounded-sm flex flex-col items-center justify-center text-[9px] sm:text-[10px]"
                       style={{
-                        backgroundColor: intensityColor(
-                          cell.count,
-                          monthMax
-                        ),
+                        backgroundColor: cell.day !== null
+                          ? intensityColor(cell.count, monthMax)
+                          : undefined,
                       }}
                       title={
                         cell.dateStr

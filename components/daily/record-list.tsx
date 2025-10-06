@@ -23,12 +23,12 @@ export function RecordList({ title, records }: RecordListProps) {
 
   return (
     <div>
-      <h3 className="text-md font-semibold mb-2">
+      <h3 className="text-base font-semibold mb-2">
         {title}
       </h3>
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <div className="text-2xl font-bold">{records[0].value}</div>
+          <div className="text-lg font-semibold">{records[0].value}</div>
           <p className="text-xs text-muted-foreground text-right">
             {records[0].label}
           </p>
@@ -41,13 +41,13 @@ export function RecordList({ title, records }: RecordListProps) {
             <div
               className={
                 idx === 0
-                  ? "text-lg font-semibold text-muted-foreground"
-                  : "text-sm font-medium text-muted-foreground"
+                  ? "text-base font-semibold text-muted-foreground"
+                  : "text-xs font-medium text-muted-foreground"
               }
             >
               {record.value}
             </div>
-            <p className="text-xs text-muted-foreground text-right">
+            <p className="text-sm text-muted-foreground text-right">
               {record.label}
             </p>
           </div>

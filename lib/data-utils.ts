@@ -1,5 +1,5 @@
 import { DashboardData, LeaderboardItem } from "@/lib/types"
-import { parseIsoDateToUTC } from "@/lib/utils"
+import { parseIsoDateToUTC, normalizeString, normalizeAndFormat } from "@/lib/utils"
 import { DashboardModel } from "@/lib/dashboard-model"
 
 export function calculateDaysSinceStart(startDate: string): number {
@@ -52,4 +52,26 @@ export function getPlayerStats(data: DashboardData | null, email: string) {
 
 export function getAllPlayerEmails(data: DashboardData | null): string[] {
   return new DashboardModel(data).allPlayerEmails()
+}
+
+/**
+ * Normalizes a record by converting keys to lowercase and trimming spaces,
+ * then aggregating counts for duplicate keys
+ */
+export function normalizeRecord(record: Record<string, number>): Record<string, { normalized: string, count: number }> {
+  const normalized: Record<string, { normalized: string, count: number }> = {}
+
+  for (const [key, value] of Object.entries(record)) {
+    const normalizedKey = normalizeString(key)
+    if (normalized[normalizedKey]) {
+      normalized[normalizedKey].count += value
+    } else {
+      normalized[normalizedKey] = {
+        normalized: normalizeAndFormat(key),
+        count: value
+      }
+    }
+  }
+
+  return normalized
 }

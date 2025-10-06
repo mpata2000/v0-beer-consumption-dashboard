@@ -24,7 +24,7 @@ export function StatsOverview({ data }: StatsOverviewProps) {
             </div>
             <div>
               <div className="text-2xl font-bold text-foreground">{stats.totalBeers.toLocaleString()}</div>
-              <div className="text-sm font-medium text-muted-foreground">Total Beers</div>
+              <div className="text-sm font-medium text-muted-foreground">Birras Totales</div>
               <div className="text-xs text-muted-foreground">{stats.avgBeersPerDay.toFixed(2)} avg/day</div>
             </div>
           </div>
@@ -35,7 +35,7 @@ export function StatsOverview({ data }: StatsOverviewProps) {
             </div>
             <div>
               <div className="text-2xl font-bold text-foreground">{stats.totalLiters.toFixed(2)}L</div>
-              <div className="text-sm font-medium text-muted-foreground">Total Liters</div>
+              <div className="text-sm font-medium text-muted-foreground">Litros Totales</div>
               <div className="text-xs text-muted-foreground">{stats.avgLitersPerDay.toFixed(2)}L avg/day</div>
             </div>
           </div>

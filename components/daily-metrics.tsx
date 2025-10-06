@@ -1,13 +1,5 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { PieChart } from "@mui/x-charts/PieChart";
 import { DashboardData } from "@/lib/types";
 import { DashboardModel } from "@/lib/dashboard-model";
 import { useMemo } from "react";
@@ -16,6 +8,7 @@ import {
   ConsumptionCard,
   HeatmapCard,
   CalendarHeatmapCard,
+  TimeRangeCard,
 } from "@/components/daily";
 
 interface DailyMetricsProps {
@@ -50,55 +43,19 @@ export function DailyMetrics({ data, hideChart = false }: DailyMetricsProps) {
     [data]
   );
 
-  // -----------------------------
-  // New: Time-range pie chart (global)
-  // -----------------------------
-  const entries = data?.entries || [];
-  const timeRangeTotals = useMemo(() => {
-    const map: Record<string, number> = {};
-    for (const e of entries) {
-      if (!e.timeRange) continue;
-      map[e.timeRange] = (map[e.timeRange] || 0) + 1;
-    }
-    return map;
-  }, [entries]);
-
-  const timeRangePieData = useMemo(() => {
-    const entriesList = Object.entries(timeRangeTotals);
-    const colors = [
-      "#3b82f6",
-      "#10b981",
-      "#f59e0b",
-      "#ef4444",
-      "#8b5cf6",
-      "#ec4899",
-      "#06b6d4",
-      "#f97316",
-      "#22c55e",
-      "#eab308",
-      "#a855f7",
-      "#14b8a6",
-    ];
-    return entriesList.map(([label, value], idx) => ({
-      id: idx,
-      label,
-      value,
-      color: colors[idx % colors.length],
-    }));
-  }, [timeRangeTotals]);
 
   return (
     <div className="space-y-6">
       {/* Records Container */}
       <div className="grid gap-4 md:grid-cols-2">
         <RecordsCard
-          title="Beer Records"
+          title="Birras"
           topGlobalDays={topGlobalDays}
           topIndividualRecords={topIndividualRecords}
           unit="beers"
         />
         <RecordsCard
-          title="Liters Records"
+          title="Litros"
           topGlobalDays={litersTopGlobalDays}
           topIndividualRecords={litersTopIndividualRecords}
           unit="liters"
@@ -116,53 +73,7 @@ export function DailyMetrics({ data, hideChart = false }: DailyMetricsProps) {
         </div>
 
         <div className="flex-1 min-w-0 flex">
-          <Card className="w-full h-full flex flex-col">
-            <CardHeader>
-              <CardTitle>Time Range Distribution</CardTitle>
-              <CardDescription>Share of beers by time range</CardDescription>
-            </CardHeader>
-            <CardContent className="flex-1">
-              {timeRangePieData.length === 0 ? (
-                <div className="text-sm text-muted-foreground">
-                  No time range data
-                </div>
-              ) : (
-                <div>
-                  <div>
-                    <PieChart
-                      series={[
-                        {
-                          data: timeRangePieData,
-                          startAngle: -90,
-                          endAngle: 270,
-                          paddingAngle: 2,
-                          innerRadius: "50%",
-                          outerRadius: "90%",
-                          highlightScope: { fade: "global", highlight: "item" },
-                        },
-                      ]}
-                      width={undefined}
-                      height={260}
-                      slotProps={{
-                        legend: {
-                          direction: "vertical",
-                          position: {
-                            vertical: "middle",
-                            horizontal: "center",
-                          },
-                          sx: {
-                            fontSize: 14,
-                            color: "white",
-                          },
-                        },
-                      }}
-                      //hideLegend={true}
-                    />
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <TimeRangeCard data={data} />
         </div>
       </div>
     </div>

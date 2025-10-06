@@ -61,7 +61,7 @@ export function RecordsCard({
       <CardContent>
         <div className="space-y-4">
           <RecordList
-            title="Group Record"
+            title="Grupal"
             records={topGlobalDays.map((r) => ({
               value: formatValue(getValue(r)),
               label: r.displayDate,
@@ -70,7 +70,7 @@ export function RecordsCard({
 
           <div className="pt-4 border-t border-border">
             <RecordList
-              title="Individual Record"
+              title="Individual"
               records={topIndividualRecords.map((r) => ({
                 value: formatValue(getValue(r)),
                 label: `${r.name} on ${r.displayDate}`,

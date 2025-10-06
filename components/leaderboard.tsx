@@ -45,7 +45,7 @@ export function Leaderboard({ data }: LeaderboardProps) {
       <CardHeader className="pb-3 px-3 sm:px-6 sm:pb-4">
         <CardTitle className="flex items-center gap-2 text-lg">
           <TrophyIcon className="h-5 w-5 text-primary" />
-          Leaderboard
+          Tabla
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-2 px-3 sm:px-6 sm:space-y-3">
