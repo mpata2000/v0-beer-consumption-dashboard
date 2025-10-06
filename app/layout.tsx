@@ -8,9 +8,11 @@ import { ThemeProvider } from "@/components/theme-provider"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "v0 App",
-  description: "Created with v0",
-  generator: "v0.app",
+  title: "Birras - Campeonato de Birras by Wet Bandits",
+  description: "Campeonato de Birras by Wet Bandits",
+  icons: {
+    icon: '/logo2.png',
+  },
 }
 
 export default function RootLayout({
