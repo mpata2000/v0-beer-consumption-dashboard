@@ -8,7 +8,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "Birras - Campeonato de Birras by Wet Bandits",
+  title: "Birras - Wet Bandits",
   description: "Campeonato de Birras by Wet Bandits",
   icons: {
     icon: '/logo2.png',
