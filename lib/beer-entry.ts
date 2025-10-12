@@ -1,3 +1,5 @@
+import { normalizeAndFormat } from "@/lib/utils"
+
 // Column positions in the Google Sheet
 const TIMESTAMP_POSITION = 0
 const BRAND_POSITION = 1
@@ -51,17 +53,33 @@ function parseDateDDMMYYYY(dateStr: string): string {
     return `${year}-${month}-${day}`
   }
 
+// Normalize time range to match expected format: "0-3", "4-7", etc.
+function normalizeTimeRange(timeRange: string): string {
+  if (!timeRange) return ""
+
+  // Trim and remove common suffixes like "hs", "h"
+  let normalized = timeRange.trim().replace(/hs?$/i, "").trim()
+
+  // Remove all spaces: "20 - 23" -> "20-23", "16 - 19" -> "16-19"
+  normalized = normalized.replace(/\s+/g, "")
+
+  // Remove leading zeros: "00-03" -> "0-3", "04-07" -> "4-7"
+  normalized = normalized.replace(/^0+(\d)/, "$1").replace(/-0+(\d)/, "-$1")
+
+  return normalized
+}
+
 export function newBeerEntryFromRow(row: string[]): BeerEntry {
     const email = row[EMAIL_POSITION] || ""
-    const brand = row[BRAND_POSITION] || ""
-    const variety = row[TYPE_POSITION] || ""
+    const brand = normalizeAndFormat(row[BRAND_POSITION] || "")
+    const variety = normalizeAndFormat(row[TYPE_POSITION] || "")
     const rawDate = row[DATE_POSITION] || ""
     const normalizedDate = parseDateDDMMYYYY(rawDate) // Convert dd/mm/yyyy to yyyy-mm-dd
-    const location = row[LOCATION_POSITION] || ""
-    const event = row[EVENT_POSITION] || ""
+    const location = normalizeAndFormat(row[LOCATION_POSITION] || "")
+    const event = normalizeAndFormat(row[EVENT_POSITION] || "")
     const alone = row[ALONE_POSITION] !== "No"
     const amount = parseInt(row[AMOUNT_POSITION] || "0", 10)
-    const name = EMAIL_TO_NAME[email] || email.split("@")[0] || "Unknown"
+    const name = normalizeAndFormat(EMAIL_TO_NAME[email] || email.split("@")[0] || "Unknown")
 
     // Add to entries array (store normalized date for sorting/grouping)
     return {
@@ -75,8 +93,8 @@ export function newBeerEntryFromRow(row: string[]): BeerEntry {
       email,
       name,
       amount,
-      food: row[FOOD_POSITION] || "",
-      timeRange: row[TIME_RANGE_POSITION] || "",
+      food: normalizeAndFormat(row[FOOD_POSITION] || ""),
+      timeRange: normalizeTimeRange(row[TIME_RANGE_POSITION] || ""),
       extra: row[EXTRA_POSITION] || "",
     }
 }

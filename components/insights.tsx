@@ -1,22 +1,18 @@
 "use client"
 
-import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Select } from "@/components/ui/select"
 import { PieChart } from "@mui/x-charts/PieChart"
 import { TopListCard } from "@/components/top-list-card"
 import { DashboardData } from "@/lib/types"
 import { DashboardModel } from "@/lib/dashboard-model"
-import { normalizeRecord } from "@/lib/data-utils"
 
 interface InsightsProps {
   data: DashboardData | null
+  selectedMember: string
 }
 
-export function Insights({ data }: InsightsProps) {
-  const [selectedMember, setSelectedMember] = useState<string>("all")
-
+export function Insights({ data, selectedMember }: InsightsProps) {
   const model = new DashboardModel(data)
   const playersStats: Record<string, any> = data?.playersStats || {}
 
@@ -46,8 +42,8 @@ export function Insights({ data }: InsightsProps) {
         const events: Record<string, number> = {}
 
         memberEntries.forEach(entry => {
-          if (entry.place) {
-            locations[entry.place] = (locations[entry.place] || 0) + 1
+          if (entry.location) {
+            locations[entry.location] = (locations[entry.location] || 0) + 1
           }
           if (entry.event) {
             events[entry.event] = (events[entry.event] || 0) + 1
@@ -69,40 +65,36 @@ export function Insights({ data }: InsightsProps) {
 
   const { brands, types, locations, events, totalBeers, aloneCount } = getMemberData()
 
-  // Normalize and transform data to lists with percentages
-  const normalizedBrands = normalizeRecord(brands)
-  const brandList = Object.values(normalizedBrands)
-    .map((item) => ({
-      name: item.normalized,
-      count: item.count,
-      percentage: totalBeers > 0 ? ((item.count / totalBeers) * 100).toFixed(1) : '0.0'
+  // Transform data to lists with percentages (data is already normalized in beer-entry.ts)
+  const brandList = Object.entries(brands)
+    .map(([name, count]) => ({
+      name,
+      count: count as number,
+      percentage: totalBeers > 0 ? (((count as number) / totalBeers) * 100).toFixed(1) : '0.0'
     }))
     .sort((a, b) => b.count - a.count)
 
-  const normalizedTypes = normalizeRecord(types)
-  const typeList = Object.values(normalizedTypes)
-    .map((item) => ({
-      name: item.normalized,
-      count: item.count,
-      percentage: totalBeers > 0 ? ((item.count / totalBeers) * 100).toFixed(1) : '0.0'
+  const typeList = Object.entries(types)
+    .map(([name, count]) => ({
+      name,
+      count: count as number,
+      percentage: totalBeers > 0 ? (((count as number) / totalBeers) * 100).toFixed(1) : '0.0'
     }))
     .sort((a, b) => b.count - a.count)
 
-  const normalizedLocations = normalizeRecord(locations)
-  const locationList = Object.values(normalizedLocations)
-    .map((item) => ({
-      name: item.normalized,
-      count: item.count,
-      percentage: totalBeers > 0 ? ((item.count / totalBeers) * 100).toFixed(1) : '0.0'
+  const locationList = Object.entries(locations)
+    .map(([name, count]) => ({
+      name,
+      count: count as number,
+      percentage: totalBeers > 0 ? (((count as number) / totalBeers) * 100).toFixed(1) : '0.0'
     }))
     .sort((a, b) => b.count - a.count)
 
-  const normalizedEvents = normalizeRecord(events)
-  const eventList = Object.values(normalizedEvents)
-    .map((item) => ({
-      name: item.normalized,
-      count: item.count,
-      percentage: totalBeers > 0 ? ((item.count / totalBeers) * 100).toFixed(1) : '0.0'
+  const eventList = Object.entries(events)
+    .map(([name, count]) => ({
+      name,
+      count: count as number,
+      percentage: totalBeers > 0 ? (((count as number) / totalBeers) * 100).toFixed(1) : '0.0'
     }))
     .sort((a, b) => b.count - a.count)
 
@@ -142,9 +134,8 @@ export function Insights({ data }: InsightsProps) {
   const memberTopBrands = selectedMember === "all"
     ? Object.entries(playersStats)
         .map(([member, stats]: [string, any]) => {
-          const normalizedBrands = normalizeRecord(stats.beerBrands || {})
-          const brandList = Object.values(normalizedBrands)
-            .map((item) => ({ brand: item.normalized, count: item.count }))
+          const brandList = Object.entries(stats.beerBrands || {})
+            .map(([brand, count]) => ({ brand, count: count as number }))
             .sort((a, b) => b.count - a.count)
 
           return {
@@ -166,26 +157,6 @@ export function Insights({ data }: InsightsProps) {
 
   return (
     <div className="space-y-6">
-      {/* Filter */}
-      <div className="flex items-center gap-4">
-        <label htmlFor="member-filter" className="text-sm font-medium">
-          Filtrar por miembro:
-        </label>
-        <Select
-          id="member-filter"
-          value={selectedMember}
-          onChange={(e) => setSelectedMember(e.target.value)}
-          className="w-[200px]"
-        >
-          <option value="all">Todos</option>
-          {members.map((member) => (
-            <option key={member.email} value={member.email}>
-              {member.name}
-            </option>
-          ))}
-        </Select>
-      </div>
-
       {/* Beer Brands and Types */}
       <div className="grid gap-6 md:grid-cols-2">
         <TopListCard

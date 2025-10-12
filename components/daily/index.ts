@@ -4,3 +4,5 @@ export { ConsumptionCard } from "./consumption-card";
 export { BeerTimeRangeDayOfTheWeekHeatmap as HeatmapCard } from "./beer-day-heatmap-card";
 export { CalendarHeatmapCard } from "./calendar-heatmap-card";
 export { TimeRangeCard } from "./time-range-card";
+export { PlayerMonthComparisonCard } from "./player-month-comparison-card";
+export { PlayerMonthComparisonLitersCard } from "./player-month-comparison-liters-card";

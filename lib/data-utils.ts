@@ -1,6 +1,118 @@
 import { DashboardData, LeaderboardItem } from "@/lib/types"
-import { parseIsoDateToUTC, normalizeString, normalizeAndFormat } from "@/lib/utils"
+import { parseIsoDateToUTC, monthKeyFromIso, compareIsoDatesAsc } from "@/lib/utils"
 import { DashboardModel } from "@/lib/dashboard-model"
+
+export const TIME_RANGES = ["0-3", "4-7", "8-11", "12-15", "16-19", "20-23"]
+
+/**
+ * Formats a month key (yyyy-mm) as a short label in Spanish (e.g., "Ene", "Feb")
+ */
+export function formatMonthKeyLabel(monthKey: string): string {
+  if (!monthKey) return "";
+  const [y, m] = monthKey.split("-").map((v) => parseInt(v, 10));
+  const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+  return monthNames[(m || 1) - 1] || "";
+}
+
+/**
+ * Aggregates beer consumption by month and player
+ * Returns a map of player email -> month key -> beer count
+ */
+export function aggregateBeersPerMonthByPlayer(
+  data: DashboardData | null
+): {
+  playerMonthData: Map<string, Map<string, number>>;
+  allMonths: string[];
+  playerNames: Map<string, string>;
+} {
+  const playerMonthData = new Map<string, Map<string, number>>();
+  const playerNames = new Map<string, string>();
+  const monthsSet = new Set<string>();
+
+  if (!data?.entries) {
+    return { playerMonthData, allMonths: [], playerNames };
+  }
+
+  // Aggregate by player and month
+  for (const entry of data.entries) {
+    const monthKey = monthKeyFromIso(entry.date);
+    if (!monthKey) continue;
+
+    monthsSet.add(monthKey);
+
+    // Store player name
+    if (!playerNames.has(entry.email)) {
+      const stats = data.playersStats[entry.email];
+      playerNames.set(entry.email, stats?.alias || entry.name);
+    }
+
+    // Initialize player map if needed
+    if (!playerMonthData.has(entry.email)) {
+      playerMonthData.set(entry.email, new Map<string, number>());
+    }
+
+    const monthMap = playerMonthData.get(entry.email)!;
+    monthMap.set(monthKey, (monthMap.get(monthKey) || 0) + 1);
+  }
+
+  // Sort months chronologically
+  const allMonths = Array.from(monthsSet).sort((a, b) =>
+    compareIsoDatesAsc(a + "-01", b + "-01")
+  );
+
+  return { playerMonthData, allMonths, playerNames };
+}
+
+/**
+ * Aggregates liter consumption by month and player
+ * Returns a map of player email -> month key -> liter count
+ */
+export function aggregateLitersPerMonthByPlayer(
+  data: DashboardData | null
+): {
+  playerMonthData: Map<string, Map<string, number>>;
+  allMonths: string[];
+  playerNames: Map<string, string>;
+} {
+  const playerMonthData = new Map<string, Map<string, number>>();
+  const playerNames = new Map<string, string>();
+  const monthsSet = new Set<string>();
+
+  if (!data?.entries) {
+    return { playerMonthData, allMonths: [], playerNames };
+  }
+
+  // Aggregate by player and month
+  for (const entry of data.entries) {
+    const monthKey = monthKeyFromIso(entry.date);
+    if (!monthKey) continue;
+
+    monthsSet.add(monthKey);
+
+    // Store player name
+    if (!playerNames.has(entry.email)) {
+      const stats = data.playersStats[entry.email];
+      playerNames.set(entry.email, stats?.alias || entry.name);
+    }
+
+    // Initialize player map if needed
+    if (!playerMonthData.has(entry.email)) {
+      playerMonthData.set(entry.email, new Map<string, number>());
+    }
+
+    const monthMap = playerMonthData.get(entry.email)!;
+    // Convert milliliters to liters
+    const liters = entry.amount / 1000;
+    monthMap.set(monthKey, (monthMap.get(monthKey) || 0) + liters);
+  }
+
+  // Sort months chronologically
+  const allMonths = Array.from(monthsSet).sort((a, b) =>
+    compareIsoDatesAsc(a + "-01", b + "-01")
+  );
+
+  return { playerMonthData, allMonths, playerNames };
+}
 
 export function calculateDaysSinceStart(startDate: string): number {
   // Use UTC-safe parsing to avoid timezone off-by-one
@@ -52,26 +164,4 @@ export function getPlayerStats(data: DashboardData | null, email: string) {
 
 export function getAllPlayerEmails(data: DashboardData | null): string[] {
   return new DashboardModel(data).allPlayerEmails()
-}
-
-/**
- * Normalizes a record by converting keys to lowercase and trimming spaces,
- * then aggregating counts for duplicate keys
- */
-export function normalizeRecord(record: Record<string, number>): Record<string, { normalized: string, count: number }> {
-  const normalized: Record<string, { normalized: string, count: number }> = {}
-
-  for (const [key, value] of Object.entries(record)) {
-    const normalizedKey = normalizeString(key)
-    if (normalized[normalizedKey]) {
-      normalized[normalizedKey].count += value
-    } else {
-      normalized[normalizedKey] = {
-        normalized: normalizeAndFormat(key),
-        count: value
-      }
-    }
-  }
-
-  return normalized
 }

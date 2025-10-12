@@ -60,15 +60,29 @@ export function RecordsCard({
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <RecordList
-            title="Grupal"
-            records={topGlobalDays.map((r) => ({
-              value: formatValue(getValue(r)),
-              label: r.displayDate,
-            }))}
-          />
+          {topGlobalDays.length > 0 && (
+            <RecordList
+              title="Grupal"
+              records={topGlobalDays.map((r) => ({
+                value: formatValue(getValue(r)),
+                label: r.displayDate,
+              }))}
+            />
+          )}
 
-          <div className="pt-4 border-t border-border">
+          {topGlobalDays.length > 0 && topIndividualRecords.length > 0 && (
+            <div className="pt-4 border-t border-border">
+              <RecordList
+                title="Individual"
+                records={topIndividualRecords.map((r) => ({
+                  value: formatValue(getValue(r)),
+                  label: `${r.name} on ${r.displayDate}`,
+                }))}
+              />
+            </div>
+          )}
+
+          {topGlobalDays.length === 0 && topIndividualRecords.length > 0 && (
             <RecordList
               title="Individual"
               records={topIndividualRecords.map((r) => ({
@@ -76,7 +90,7 @@ export function RecordsCard({
                 label: `${r.name} on ${r.displayDate}`,
               }))}
             />
-          </div>
+          )}
         </div>
       </CardContent>
     </Card>

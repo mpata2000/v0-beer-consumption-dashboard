@@ -8,15 +8,25 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { DashboardModel } from "@/lib/dashboard-model";
+import { DashboardData } from "@/lib/types";
 import { monthMetaFromKey } from "@/lib/utils";
 import { useMemo, useState } from "react";
 
 interface CalendarHeatmapCardProps {
   model: DashboardModel;
+  data: DashboardData | null;
+  selectedMember: string;
 }
 
-export function CalendarHeatmapCard({ model }: CalendarHeatmapCardProps) {
+export function CalendarHeatmapCard({ model, data, selectedMember }: CalendarHeatmapCardProps) {
   const perDay: Record<string, number> = model.globalBeerPerDay();
+
+  // Get member name for subtitle
+  const memberName = useMemo(() => {
+    if (selectedMember === "all") return "Todos";
+    const stats = data?.playersStats[selectedMember];
+    return stats ? (stats as any).alias || selectedMember.split("@")[0] : "Todos";
+  }, [selectedMember, data]);
 
   const monthKeys = useMemo(() => model.monthKeys(), [model]);
 
@@ -60,11 +70,8 @@ export function CalendarHeatmapCard({ model }: CalendarHeatmapCardProps) {
   function formatMonthLabel(key: string) {
     if (!key) return "";
     const [y, m] = key.split("-").map((v) => parseInt(v, 10));
-    const dt = new Date(Date.UTC(y, m - 1, 1));
-    const month = dt.toLocaleString("en-US", {
-      month: "long",
-      timeZone: "UTC",
-    });
+    const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+    const month = monthNames[(m || 1) - 1] || "";
     return `${month} ${y}`;
   }
 
@@ -104,12 +111,13 @@ export function CalendarHeatmapCard({ model }: CalendarHeatmapCardProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Calendar de Birras</CardTitle>
+        <CardTitle>Calendario de Birras</CardTitle>
+        <CardDescription>Calendario de {memberName}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex items-center justify-between mb-4 gap-4">
           <div className="text-sm text-muted-foreground">
-            {selectedMonth ? formatMonthLabel(selectedMonth) : "No data"}
+            {selectedMonth ? formatMonthLabel(selectedMonth) : "Sin datos"}
           </div>
           <select
             className="bg-transparent border border-border rounded-md px-2 py-1 text-sm"
@@ -127,7 +135,7 @@ export function CalendarHeatmapCard({ model }: CalendarHeatmapCardProps) {
         <div className="overflow-x-auto">
           <div className="min-w-0">
             <div className="grid grid-cols-7 gap-1 mb-2 text-xs text-muted-foreground">
-              {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => (
+              {["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"].map((d) => (
                 <div key={d} className="text-center">
                   {d}
                 </div>
