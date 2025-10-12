@@ -10,6 +10,7 @@ import { StatsOverview } from "@/components/stats-overview"
 import { Leaderboard } from "@/components/leaderboard"
 import { DailyMetrics } from "@/components/daily-metrics"
 import { Insights } from "@/components/insights"
+import { PlayerMonthComparisonCard, PlayerMonthComparisonLitersCard } from "@/components/daily"
 import { useRouter } from "next/navigation"
 import { DashboardData } from "@/lib/types"
 
@@ -112,6 +113,12 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
           <TabsContent value="overview" className="space-y-8">
             <StatsOverview data={initialData} />
             <Leaderboard data={initialData} />
+
+            {/* Player-Month Comparison Tables */}
+            <div className="grid gap-4 md:grid-cols-2">
+              <PlayerMonthComparisonCard data={initialData} />
+              <PlayerMonthComparisonLitersCard data={initialData} />
+            </div>
           </TabsContent>
 
           <TabsContent value="daily-metrics" className="space-y-8">

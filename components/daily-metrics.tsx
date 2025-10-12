@@ -9,8 +9,6 @@ import {
   HeatmapCard,
   CalendarHeatmapCard,
   TimeRangeCard,
-  PlayerMonthComparisonCard,
-  PlayerMonthComparisonLitersCard,
 } from "@/components/daily";
 
 interface DailyMetricsProps {
@@ -101,12 +99,6 @@ export function DailyMetrics({ data, selectedMember, hideChart = false }: DailyM
         <div className="flex-1 min-w-0 flex">
           <TimeRangeCard data={filteredData} />
         </div>
-      </div>
-
-      {/* Player-Month Comparison Tables */}
-      <div className="grid gap-4 md:grid-cols-2">
-        <PlayerMonthComparisonCard data={data} />
-        <PlayerMonthComparisonLitersCard data={data} />
       </div>
     </div>
   );
