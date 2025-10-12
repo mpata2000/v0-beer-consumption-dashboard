@@ -102,7 +102,7 @@ export function PlayerMonthComparisonLitersCard({ data }: PlayerMonthComparisonL
           <div
             className="grid gap-0.5 sm:gap-1 min-w-max"
             style={{
-              gridTemplateColumns: `80px repeat(${sortedPlayers.length}, minmax(80px, 1fr)) minmax(70px, auto)`,
+              gridTemplateColumns: `50px repeat(${sortedPlayers.length}, minmax(50px, 1fr)) minmax(50px, auto)`,
             }}
           >
             {/* Header row */}
