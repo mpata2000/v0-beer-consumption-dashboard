@@ -41,7 +41,7 @@ export function ConsumptionCard({ model, data, selectedMember }: ConsumptionCard
 
   // Calculate per-person milestones
   const milestonesByPlayer = useMemo(
-    () => model.computePlayerMilestones(100, 300),
+    () => model.computePlayerMilestones(100, 600),
     [model]
   );
 
