@@ -95,9 +95,6 @@ export function Versus({ data }: VersusProps) {
       {/* Player Selection */}
       <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
         <div className="flex items-center gap-2">
-          <label htmlFor="player1-select" className="text-sm font-medium">
-            Jugador 1:
-          </label>
           <Select
             id="player1-select"
             value={player1Email}
@@ -117,9 +114,6 @@ export function Versus({ data }: VersusProps) {
         <div className="text-2xl font-bold text-muted-foreground">VS</div>
 
         <div className="flex items-center gap-2">
-          <label htmlFor="player2-select" className="text-sm font-medium">
-            Jugador 2:
-          </label>
           <Select
             id="player2-select"
             value={player2Email}
