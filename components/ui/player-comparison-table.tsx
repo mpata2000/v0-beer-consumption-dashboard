@@ -75,7 +75,7 @@ export function PlayerComparisonTable({
         <div className="overflow-x-auto flex-1 overflow-y-auto">
           <div className="min-w-max">
             {/* Header row */}
-            <div className="grid grid-cols-[minmax(100px,1fr)_80px_80px_80px] gap-2 mb-2 sticky top-0 bg-card z-10">
+            <div className="grid grid-cols-[80px_80px_80px_80px] gap-2 mb-2 sticky top-0 bg-card z-10">
               <div className="text-xs font-semibold text-muted-foreground py-2" />
               <div className="text-xs font-semibold text-center text-muted-foreground py-2 truncate">
                 {player1Name}
@@ -95,9 +95,12 @@ export function PlayerComparisonTable({
                 return (
                   <div
                     key={index}
-                    className="grid grid-cols-[minmax(100px,1fr)_80px_80px_80px] gap-2 mb-1"
+                    className="grid grid-cols-[80px_80px_80px_80px] gap-2 mb-1"
                   >
-                    <div className="text-xs text-muted-foreground h-8 flex items-center font-medium truncate">
+                    <div
+                      className="text-xs text-muted-foreground h-8 flex items-center font-medium truncate"
+                      title={row.label}
+                    >
                       {row.label}
                     </div>
                     <div className="h-8 rounded-sm flex items-center justify-center text-xs font-medium bg-muted/30">
@@ -127,7 +130,7 @@ export function PlayerComparisonTable({
           <div className="border-t-2 border-border pt-2 mt-2 flex-shrink-0 bg-card">
             <div className="overflow-x-auto">
               <div className="min-w-max">
-                <div className="grid grid-cols-[minmax(100px,1fr)_80px_80px_80px] gap-2">
+                <div className="grid grid-cols-[80px_80px_80px_80px] gap-2">
                   <div className="text-xs text-muted-foreground h-8 flex items-center font-bold">
                     Total
                   </div>
