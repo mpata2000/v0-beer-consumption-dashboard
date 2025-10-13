@@ -5,11 +5,12 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select } from "@/components/ui/select"
-import { BeerIcon, CalendarIcon, RefreshCwIcon, ExternalLinkIcon, BarChartIcon, PieChartIcon } from "lucide-react"
+import { BeerIcon, CalendarIcon, RefreshCwIcon, ExternalLinkIcon, BarChartIcon, PieChartIcon, SwordsIcon } from "lucide-react"
 import { StatsOverview } from "@/components/stats-overview"
 import { Leaderboard } from "@/components/leaderboard"
 import { DailyMetrics } from "@/components/daily-metrics"
 import { Insights } from "@/components/insights"
+import { Versus } from "@/components/versus"
 import { PlayerMonthComparisonCard, PlayerMonthComparisonLitersCard } from "@/components/daily"
 import { useRouter } from "next/navigation"
 import { DashboardData } from "@/lib/types"
@@ -22,6 +23,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
   const router = useRouter()
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [selectedMember, setSelectedMember] = useState<string>("all")
+  const [activeTab, setActiveTab] = useState<string>("overview")
 
   // Get list of members for the dropdown
   const playersStats = initialData?.playersStats || {}
@@ -74,9 +76,9 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
       </header>
 
       <main className="container mx-auto py-8 px-2">
-        <Tabs defaultValue="overview" className="w-full">
+        <Tabs defaultValue="overview" className="w-full" onValueChange={setActiveTab}>
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-            <TabsList className="grid w-full sm:w-auto grid-cols-3">
+            <TabsList className="grid w-full sm:w-auto grid-cols-4">
               <TabsTrigger value="overview" className="flex items-center gap-2">
                 <BeerIcon className="h-4 w-4" />
                 <span className="hidden sm:inline">Resumen</span>
@@ -89,25 +91,31 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                 <PieChartIcon className="h-4 w-4" />
                 <span className="hidden sm:inline">Descubrimientos</span>
               </TabsTrigger>
+              <TabsTrigger value="versus" className="flex items-center gap-2">
+                <SwordsIcon className="h-4 w-4" />
+                <span className="hidden sm:inline">Versus</span>
+              </TabsTrigger>
             </TabsList>
 
-            <div className="flex items-center gap-3">
-              <Select
-                id="member-filter"
-                value={selectedMember}
-                onChange={(e) => setSelectedMember(e.target.value)}
-                className="w-[100px]"
-              >
-                <>
-                  <option value="all">Todos</option>
-                  {members.map((member) => (
-                    <option key={member.email} value={member.email}>
-                      {member.name}
-                    </option>
-                  ))}
-                </>
-              </Select>
-            </div>
+            {activeTab !== "versus" && (
+              <div className="flex items-center gap-3">
+                <Select
+                  id="member-filter"
+                  value={selectedMember}
+                  onChange={(e) => setSelectedMember(e.target.value)}
+                  className="w-[100px]"
+                >
+                  <>
+                    <option value="all">Todos</option>
+                    {members.map((member) => (
+                      <option key={member.email} value={member.email}>
+                        {member.name}
+                      </option>
+                    ))}
+                  </>
+                </Select>
+              </div>
+            )}
           </div>
 
           <TabsContent value="overview" className="space-y-8">
@@ -129,6 +137,10 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
 
           <TabsContent value="insights" className="space-y-8">
             <Insights data={initialData} selectedMember={selectedMember} />
+          </TabsContent>
+
+          <TabsContent value="versus" className="space-y-8">
+            <Versus data={initialData} />
           </TabsContent>
         </Tabs>
       </main>
