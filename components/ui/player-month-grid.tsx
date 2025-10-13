@@ -110,11 +110,11 @@ export function PlayerMonthGrid({
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent className="overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto overflow-y-auto max-h-[550px]">
           <div
-            className="grid gap-0.5 sm:gap-1 min-w-max"
+            className="grid gap-0.5 sm:gap-1"
             style={{
-              gridTemplateColumns: `35px repeat(${sortedPlayers.length}, 50px) 50px`,
+              gridTemplateColumns: `minmax(35px, 60px) repeat(${sortedPlayers.length}, minmax(50px, 1fr)) minmax(50px, 80px)`,
             }}
           >
             {/* Header row */}
