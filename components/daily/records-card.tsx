@@ -76,7 +76,7 @@ export function RecordsCard({
                 title="Individual"
                 records={topIndividualRecords.map((r) => ({
                   value: formatValue(getValue(r)),
-                  label: `${r.name} on ${r.displayDate}`,
+                  label: `${r.name} el ${r.displayDate}`,
                 }))}
               />
             </div>

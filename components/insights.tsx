@@ -3,8 +3,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { PieChart } from "@mui/x-charts/PieChart"
-import { TopListCard } from "@/components/top-list-card"
-import { DashboardData } from "@/lib/types"
+import { TopListCard } from "@/components/ui/top-list-card"
+import { DashboardData, PlayerStats } from "@/lib/types"
 import { DashboardModel } from "@/lib/dashboard-model"
 
 interface InsightsProps {
@@ -14,7 +14,7 @@ interface InsightsProps {
 
 export function Insights({ data, selectedMember }: InsightsProps) {
   const model = new DashboardModel(data)
-  const playersStats: Record<string, any> = data?.playersStats || {}
+  const playersStats: Record<string, PlayerStats> = data?.playersStats || {}
 
   // Get list of members for the dropdown
   const members = Object.entries(playersStats).map(([email, stats]) => ({
@@ -36,25 +36,11 @@ export function Insights({ data, selectedMember }: InsightsProps) {
     } else {
       const memberStats = playersStats[selectedMember]
       if (memberStats) {
-        // Calculate member-specific location and event counts from entries
-        const memberEntries = data?.entries.filter(e => e.email === selectedMember) || []
-        const locations: Record<string, number> = {}
-        const events: Record<string, number> = {}
-
-        memberEntries.forEach(entry => {
-          if (entry.location) {
-            locations[entry.location] = (locations[entry.location] || 0) + 1
-          }
-          if (entry.event) {
-            events[entry.event] = (events[entry.event] || 0) + 1
-          }
-        })
-
         return {
-          brands: memberStats.beerBrands || {},
-          types: memberStats.beerTypes || {},
-          locations,
-          events,
+          brands: model.memberBrandList(selectedMember),
+          types: model.memberTypeList(selectedMember),
+          locations: model.memberLocations(selectedMember),
+          events: model.memberEvents(selectedMember),
           totalBeers: memberStats.totalBeers || 0,
           aloneCount: memberStats.drankAlone || 0
         }
@@ -119,7 +105,7 @@ export function Insights({ data, selectedMember }: InsightsProps) {
   // Calculate top solo drinkers (only for "all" view)
   const aloneLeaderboard = selectedMember === "all"
     ? Object.entries(playersStats)
-        .map(([email, stats]: [string, any]) => ({
+        .map(([email, stats]: [string, PlayerStats]) => ({
           member: stats.alias || email.split("@")[0],
           aloneCount: stats.drankAlone || 0,
           totalCount: stats.totalBeers || 0,
@@ -133,7 +119,7 @@ export function Insights({ data, selectedMember }: InsightsProps) {
   // Calculate top brands per member (only for "all" view)
   const memberTopBrands = selectedMember === "all"
     ? Object.entries(playersStats)
-        .map(([member, stats]: [string, any]) => {
+        .map(([member, stats]: [string, PlayerStats]) => {
           const brandList = Object.entries(stats.beerBrands || {})
             .map(([brand, count]) => ({ brand, count: count as number }))
             .sort((a, b) => b.count - a.count)

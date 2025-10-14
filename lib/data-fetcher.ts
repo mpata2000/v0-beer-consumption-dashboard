@@ -4,21 +4,12 @@ import {
 } from "@/lib/types"
 
 import { BeerEntry, newBeerEntryFromRow } from "@/lib/beer-entry"
+import { env } from "@/lib/env"
 
 
 
 
-interface PlayerStats {
-  alias: string
-  totalBeers: number
-  totalMilliliters: number
-  drankAlone: number
-  placeCounter: Record<string, number>
-  beerTypes: Record<string, number>
-  beerBrands: Record<string, number>
-  beerPerDay: Record<string, number>
-  litersPerDay: Record<string, number>
-}
+import type { PlayerStats } from "@/lib/types"
 
 function processSheetData(rawData: string[][] | undefined): DashboardData {
   if (!rawData || rawData.length < 2) {
@@ -109,9 +100,9 @@ function processSheetData(rawData: string[][] | undefined): DashboardData {
 }
 
 export async function fetchBeerData(): Promise<DashboardData | null> {
-  const apiKey = process.env.GOOGLE_SHEETS_API_KEY
-  const spreadsheetId = process.env.GOOGLE_SHEETS_SPREADSHEET_ID
-  const range = process.env.GOOGLE_SHEETS_RANGE
+  const apiKey = env.GOOGLE_SHEETS_API_KEY
+  const spreadsheetId = env.GOOGLE_SHEETS_SPREADSHEET_ID
+  const range = env.GOOGLE_SHEETS_RANGE
 
   if (!apiKey || !spreadsheetId || !range) {
     console.error("Google Sheets not configured")
@@ -121,9 +112,7 @@ export async function fetchBeerData(): Promise<DashboardData | null> {
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`
 
   try {
-    const response = await fetch(url, {
-      cache: "no-store", // Always get fresh data
-    })
+    const response = await fetch(url, { next: { revalidate: 600 } })
 
     if (!response.ok) {
       console.error("Failed to fetch data from Google Sheets")

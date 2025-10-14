@@ -4,6 +4,7 @@ import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
 import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
+import { Skeleton } from "@/components/ui/skeleton"
 import { ThemeProvider } from "@/components/theme-provider"
 import "./globals.css"
 
@@ -29,7 +30,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+          <Suspense fallback={<div className="min-h-screen grid place-items-center"><Skeleton className="h-10 w-32" /></div>}>
+            {children}
+          </Suspense>
         </ThemeProvider>
         <Analytics />
       </body>

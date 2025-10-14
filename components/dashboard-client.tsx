@@ -47,16 +47,13 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
                 <BeerIcon className="h-5 w-5 text-primary-foreground" />
               </div>
-              <div>
-                <h1 className="text-xl font-bold text-foreground">Birras</h1>
-              </div>
             </div>
             <div className="flex items-center space-x-3">
               <Badge variant="secondary" className="bg-accent/20 text-accent">
                 <CalendarIcon className="mr-1 h-3 w-3" />
                 Since Feb 2025
               </Badge>
-              <Button variant="outline" size="sm" asChild>
+              <Button variant="outline" size="sm" asChild aria-label="Agregar entrada">
                 <a
                   href="https://forms.gle/yNnGcQaCy98FGSQp9"
                   target="_blank"
@@ -67,7 +64,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                   <ExternalLinkIcon className="h-3 w-3" />
                 </a>
               </Button>
-              <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing}>
+              <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing} aria-label="Refrescar datos">
                 {isRefreshing ? <RefreshCwIcon className="h-4 w-4 animate-spin" /> : <RefreshCwIcon className="h-4 w-4" />}
               </Button>
             </div>
@@ -97,13 +94,14 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
               </TabsTrigger>
             </TabsList>
 
-            {activeTab !== "versus" && (
+            {activeTab !== "versus" && activeTab !== "overview" && (
               <div className="flex items-center gap-3">
                 <Select
                   id="member-filter"
                   value={selectedMember}
                   onChange={(e) => setSelectedMember(e.target.value)}
                   className="w-[100px]"
+                  aria-label="Filtrar por miembro"
                 >
                   <>
                     <option value="all">Todos</option>

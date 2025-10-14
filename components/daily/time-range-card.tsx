@@ -9,6 +9,7 @@ import {
 import { PieChart } from "@mui/x-charts/PieChart";
 import { DashboardData } from "@/lib/types";
 import { useMemo } from "react";
+import { TIME_RANGES } from "@/lib/constants";
 
 interface TimeRangeCardProps {
   data: DashboardData | null;

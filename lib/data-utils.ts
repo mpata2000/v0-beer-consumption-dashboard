@@ -1,8 +1,9 @@
 import { DashboardData, LeaderboardItem } from "@/lib/types"
 import { parseIsoDateToUTC, monthKeyFromIso, compareIsoDatesAsc } from "@/lib/utils"
 import { DashboardModel } from "@/lib/dashboard-model"
+import { TIME_RANGES } from "@/lib/constants"
 
-export const TIME_RANGES = ["0-3", "4-7", "8-11", "12-15", "16-19", "20-23"]
+export { TIME_RANGES }
 
 /**
  * Formats a month key (yyyy-mm) as a short label in Spanish (e.g., "Ene", "Feb")

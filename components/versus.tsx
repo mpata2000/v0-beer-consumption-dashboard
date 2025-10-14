@@ -3,7 +3,7 @@
 import { DashboardData } from "@/lib/types";
 import { Select } from "@/components/ui/select";
 import { PlayerComparisonTable } from "@/components/ui/player-comparison-table";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   aggregateBeersPerMonthVersus,
   aggregateLitersPerMonthVersus,
@@ -30,13 +30,11 @@ export function Versus({ data }: VersusProps) {
     }));
   }, [data]);
 
-  // Set default players if not selected
-  if (players.length > 0 && !player1Email) {
-    setPlayer1Email(players[0].email);
-  }
-  if (players.length > 1 && !player2Email) {
-    setPlayer2Email(players[1].email);
-  }
+  // Set default players if not selected (avoid state updates during render)
+  useEffect(() => {
+    if (players.length > 0 && !player1Email) setPlayer1Email(players[0].email)
+    if (players.length > 1 && !player2Email) setPlayer2Email(players[1].email)
+  }, [players, player1Email, player2Email])
 
   // Get player names
   const player1Name = useMemo(() => {
@@ -100,6 +98,7 @@ export function Versus({ data }: VersusProps) {
             value={player1Email}
             onChange={(e) => setPlayer1Email(e.target.value)}
             className="w-[150px]"
+            aria-label="Seleccionar jugador 1"
           >
             <>
               {players.map((player) => (
@@ -119,6 +118,7 @@ export function Versus({ data }: VersusProps) {
             value={player2Email}
             onChange={(e) => setPlayer2Email(e.target.value)}
             className="w-[150px]"
+            aria-label="Seleccionar jugador 2"
           >
             <>
               {players.map((player) => (

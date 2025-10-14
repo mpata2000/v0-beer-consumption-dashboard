@@ -186,7 +186,10 @@ export function PlayerMonthGrid({
                 {(playerTotals.get(email) || 0).toFixed(decimalPlaces)}
               </div>
             ))}
-            <div className="h-8 sm:h-10 flex items-center justify-center text-[10px] sm:text-xs font-bold bg-primary/20 rounded-sm border-t-2 border-border">
+            <div
+              className="h-8 sm:h-10 flex items-center justify-center text-[10px] sm:text-xs font-bold rounded-sm border-t-2 border-border"
+              style={{ backgroundColor: `rgba(${colorRgb}, 0.3)` }}
+            >
               {Array.from(playerTotals.values()).reduce((sum, count) => sum + count, 0).toFixed(decimalPlaces)}
             </div>
           </div>

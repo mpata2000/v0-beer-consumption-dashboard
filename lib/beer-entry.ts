@@ -1,4 +1,5 @@
 import { normalizeAndFormat } from "@/lib/utils"
+import { EMAIL_TO_NAME } from "@/lib/members"
 
 // Column positions in the Google Sheet
 const TIMESTAMP_POSITION = 0
@@ -14,14 +15,7 @@ const FOOD_POSITION = 9
 const TIME_RANGE_POSITION = 10
 const EXTRA_POSITION = 11
 
-// Map email addresses to display names
-const EMAIL_TO_NAME: Record<string, string> = {
-    "jmartinezmadero@gmail.com": "Javi",
-    "mpata2000@gmail.com": "Pata",
-    "juan.tardieu@gmail.com": "Juani",
-    "joaquintardieu@gmail.com": "Joaquito",
-    "juancsaravia22@gmail.com": "Juancru",
-  }
+// Email-to-name mapping is centralized in lib/members.ts
 
 export interface BeerEntry {
     timestamp: string

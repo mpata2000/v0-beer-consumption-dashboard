@@ -12,7 +12,9 @@ interface LeaderboardProps {
 export function Leaderboard({ data }: LeaderboardProps) {
   const leaderboard = new DashboardModel(data).leaderboard()
 
-  console.log("[v0] Leaderboard data:", leaderboard)
+  if (process.env.NODE_ENV !== "production") {
+    console.log("[v0] Leaderboard data:", leaderboard)
+  }
 
   const getRankIcon = (rank: number) => {
     switch (rank) {

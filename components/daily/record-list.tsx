@@ -47,7 +47,7 @@ export function RecordList({ title, records }: RecordListProps) {
             >
               {record.value}
             </div>
-            <p className="text-sm text-muted-foreground text-right">
+            <p className="text-xs text-muted-foreground text-right">
               {record.label}
             </p>
           </div>

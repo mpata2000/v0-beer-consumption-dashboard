@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { DashboardData } from "@/lib/types";
 import { parseIsoDateToUTC } from "@/lib/utils";
-import { TIME_RANGES } from "@/lib/data-utils";
+import { TIME_RANGES } from "@/lib/constants";
 import { useMemo } from "react";
 
 interface HeatmapCardProps {
@@ -50,7 +50,7 @@ export function BeerTimeRangeDayOfTheWeekHeatmap({ data, selectedMember }: Heatm
     for (const e of entries) {
       if (!e.date || !e.timeRange) continue;
       const di = getIsoDayIndex(e.date);
-      const ti = TIME_RANGES.indexOf(e.timeRange);
+      const ti = (TIME_RANGES as readonly string[]).indexOf(e.timeRange);
       if (di >= 0 && ti >= 0) matrix[di][ti] += 1;
     }
     return matrix;
@@ -90,9 +90,8 @@ export function BeerTimeRangeDayOfTheWeekHeatmap({ data, selectedMember }: Heatm
               </div>
             ))}
             {dayLabels.map((day, di) => (
-              <>
+              <div key={`row-${day}`} className="contents">
                 <div
-                  key={`label-${day}`}
                   className="text-[10px] sm:text-xs text-muted-foreground h-6 sm:h-8 flex items-center"
                 >
                   {day}
@@ -112,7 +111,7 @@ export function BeerTimeRangeDayOfTheWeekHeatmap({ data, selectedMember }: Heatm
                     {heatmapCounts[di][ti] || ""}
                   </div>
                 ))}
-              </>
+              </div>
             ))}
           </div>
         </div>

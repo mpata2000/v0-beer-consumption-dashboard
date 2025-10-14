@@ -70,6 +70,7 @@ export function DailyMetrics({ data, selectedMember, hideChart = false }: DailyM
 
   return (
     <div className="space-y-6">
+      <ConsumptionCard model={model} data={data} selectedMember={selectedMember} />
       {/* Records Container */}
       <div className="grid gap-4 md:grid-cols-2">
         <RecordsCard
@@ -86,7 +87,7 @@ export function DailyMetrics({ data, selectedMember, hideChart = false }: DailyM
         />
       </div>
 
-      <ConsumptionCard model={model} data={data} selectedMember={selectedMember} />
+
 
       <CalendarHeatmapCard model={model} data={data} selectedMember={selectedMember} />
 

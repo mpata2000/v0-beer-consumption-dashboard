@@ -73,6 +73,37 @@ export class DashboardModel {
     return keys.sort(compareIsoDatesAsc)
   }
 
+  // ---- Member aggregation helpers for Insights ----
+  memberLocations(email: string): Record<string, number> {
+    if (!this.data?.entries) return {}
+    const map: Record<string, number> = {}
+    for (const e of this.data.entries) {
+      if (e.email !== email || !e.location) continue
+      map[e.location] = (map[e.location] || 0) + 1
+    }
+    return map
+  }
+
+  memberEvents(email: string): Record<string, number> {
+    if (!this.data?.entries) return {}
+    const map: Record<string, number> = {}
+    for (const e of this.data.entries) {
+      if (e.email !== email || !e.event) continue
+      map[e.event] = (map[e.event] || 0) + 1
+    }
+    return map
+  }
+
+  memberBrandList(email: string): Record<string, number> {
+    if (!this.data) return {}
+    return this.data.playersStats[email]?.beerBrands || {}
+  }
+
+  memberTypeList(email: string): Record<string, number> {
+    if (!this.data) return {}
+    return this.data.playersStats[email]?.beerTypes || {}
+  }
+
   computePlayerMilestones(step: number = 100, max: number = 300): Map<string, Array<{ date: string; displayDate: string; member: string; beers: number; milestone: number }>> {
     const result = new Map<string, Array<{ date: string; displayDate: string; member: string; beers: number; milestone: number }>>()
     if (!this.data?.entries) return result

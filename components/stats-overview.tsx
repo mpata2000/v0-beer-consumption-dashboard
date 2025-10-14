@@ -12,7 +12,9 @@ interface StatsOverviewProps {
 export function StatsOverview({ data }: StatsOverviewProps) {
   const stats = new DashboardModel(data).totalStats()
 
-  console.log("[v0] Stats data:", stats)
+  if (process.env.NODE_ENV !== "production") {
+    console.log("[v0] Stats data:", stats)
+  }
 
   return (
     <Card className="bg-gradient-to-br from-primary/5 to-accent/10 border-primary/20">
