@@ -18,26 +18,18 @@ interface DailyMetricsProps {
 }
 
 export function DailyMetrics({ data, selectedMember, hideChart = false }: DailyMetricsProps) {
-  // Filter data based on selected member
+  // Filter data based on selected member (reuse pre-aggregated player stats)
   const filteredData = useMemo(() => {
     if (!data || selectedMember === "all") return data;
 
-    const filteredEntries = data.entries.filter(entry => entry.email === selectedMember);
-
-    // Recalculate aggregates based on filtered entries
-    const newBeerPerDay: Record<string, number> = {};
-    const newMilliLitersPerDay: Record<string, number> = {};
-
-    filteredEntries.forEach(entry => {
-      newBeerPerDay[entry.date] = (newBeerPerDay[entry.date] || 0) + 1;
-      newMilliLitersPerDay[entry.date] = (newMilliLitersPerDay[entry.date] || 0) + entry.amount;
-    });
+    const stats = data.playersStats[selectedMember];
+    if (!stats) return data;
 
     return {
       ...data,
-      entries: filteredEntries,
-      globalBeerPerDay: newBeerPerDay,
-      globalMilliLitersPerDay: newMilliLitersPerDay
+      entries: stats.entries,
+      globalBeerPerDay: stats.beerPerDay,
+      globalMilliLitersPerDay: stats.litersPerDay,
     };
   }, [data, selectedMember]);
 

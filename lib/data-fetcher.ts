@@ -70,10 +70,12 @@ function processSheetData(rawData: string[][] | undefined): DashboardData {
         beerBrands: {},
         beerPerDay: {},
         litersPerDay: {},
+        entries: [],
       }
     }
 
     const playerStats = playersStats[beerEntry.email]
+    playerStats.entries.push(beerEntry)
     playerStats.totalBeers += 1
     playerStats.totalMilliliters += beerEntry.amount
     playerStats.drankAlone += beerEntry.alone ? 1 : 0

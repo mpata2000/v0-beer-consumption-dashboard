@@ -25,6 +25,7 @@ export interface PlayerStats {
   beerBrands: Record<string, number>
   beerPerDay: Record<string, number>
   litersPerDay: Record<string, number>
+  entries: BeerEntry[]
 }
 
 export interface DashboardData {
