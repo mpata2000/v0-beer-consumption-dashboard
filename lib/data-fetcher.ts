@@ -114,7 +114,7 @@ export async function fetchBeerData(): Promise<DashboardData | null> {
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`
 
   try {
-    const response = await fetch(url, { next: { revalidate: 600 } })
+    const response = await fetch(url, { next: { revalidate: 600, tags: ["beer-data"] } })
 
     if (!response.ok) {
       console.error("Failed to fetch data from Google Sheets")

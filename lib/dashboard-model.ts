@@ -145,24 +145,6 @@ export class DashboardModel {
     return result
   }
 
-  computeGlobalMilestoneMarkers(step: number = 100, max: number = 300): Array<{ date: string; displayDate: string; milestone: number; index: number }> {
-    const perDay = this.globalBeerPerDay()
-    const chartDates = this.chartDates()
-    const markers: Array<{ date: string; displayDate: string; milestone: number; index: number }> = []
-    let globalCumulative = 0
-    let lastGlobalMilestone = 0
-    chartDates.forEach((dateStr, idx) => {
-      const dailyCount = perDay[dateStr] || 0
-      globalCumulative += dailyCount
-      const currentMilestone = Math.floor(globalCumulative / step) * step
-      if (currentMilestone > lastGlobalMilestone && currentMilestone > 0 && currentMilestone <= max) {
-        markers.push({ date: dateStr, displayDate: formatDateDDMMYYYY(dateStr), milestone: currentMilestone, index: idx })
-        lastGlobalMilestone = currentMilestone
-      }
-    })
-    return markers
-  }
-
   topGlobalBeerDays(limit: number = 3, uniqueTopValues: number = 2): Array<{ date: string; count: number; displayDate: string }> {
     const perDay = this.globalBeerPerDay()
     const records = Object.entries(perDay)
@@ -240,21 +222,6 @@ export class DashboardModel {
       if (date.startsWith(monthKey)) map[date] = count || 0
     })
     return map
-  }
-
-  timeRanges(): string[] {
-    const entries = this.data?.entries || []
-    const set = new Set<string>()
-    for (const e of entries) {
-      if (e.timeRange) set.add(e.timeRange)
-    }
-    const list = Array.from(set)
-    list.sort((a, b) => {
-      const pa = parseInt(a.trim().split(/[^0-9]+/)[0] || "0", 10)
-      const pb = parseInt(b.trim().split(/[^0-9]+/)[0] || "0", 10)
-      return pa - pb
-    })
-    return list
   }
 
   timeRangeTotals(): Record<string, number> {

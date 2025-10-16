@@ -33,9 +33,13 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
   }))
 
   const handleRefresh = async () => {
-    setIsRefreshing(true)
-    router.refresh() // Triggers server-side re-fetch
-    setTimeout(() => setIsRefreshing(false), 1000) // Reset after animation
+    try {
+      setIsRefreshing(true)
+      await fetch("/api/revalidate", { method: "POST", cache: "no-store" })
+      router.refresh()
+    } finally {
+      setTimeout(() => setIsRefreshing(false), 800)
+    }
   }
 
   return (
