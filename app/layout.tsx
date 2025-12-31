@@ -1,20 +1,15 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
+import { Inter } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ThemeProvider } from "@/components/theme-provider"
 import "./globals.css"
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
   subsets: ["latin"],
-})
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: "--font-sans",
 })
 
 export const metadata: Metadata = {
@@ -32,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="en" suppressHydrationWarning className={inter.variable}>
       <body className="font-sans antialiased">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <Suspense
