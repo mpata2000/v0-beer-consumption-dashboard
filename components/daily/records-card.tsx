@@ -17,25 +17,16 @@ interface PeakDayRecord {
 
 interface RecordsCardProps {
   title: string;
-  topGlobalDays: PeakDayRecord[];
-  unit?: "beers" | "liters";
+  topBeerDays: PeakDayRecord[];
+  topLiterDays: PeakDayRecord[];
 }
 
 export function RecordsCard({
   title,
-  topGlobalDays,
-  unit = "beers",
+  topBeerDays,
+  topLiterDays,
 }: RecordsCardProps) {
-  const formatValue = (value: number) => {
-    return unit === "liters" ? `${value.toFixed(1)}L` : value.toString();
-  };
-
-  const getValue = (record: PeakDayRecord) => {
-    if (unit === "liters") {
-      return record.liters !== undefined ? record.liters : 0;
-    }
-    return record.count !== undefined ? record.count : 0;
-  };
+  const hasData = topBeerDays.length > 0 || topLiterDays.length > 0;
 
   return (
     <Card>
@@ -43,14 +34,29 @@ export function RecordsCard({
         <CardTitle className="text-lg font-medium">{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        {topGlobalDays.length > 0 ? (
-          <RecordList
-            title="Grupal"
-            records={topGlobalDays.map((r) => ({
-              value: formatValue(getValue(r)),
-              label: r.displayDate,
-            }))}
-          />
+        {hasData ? (
+          <div className="space-y-4">
+            {topBeerDays.length > 0 && (
+              <RecordList
+                title="Birras"
+                records={topBeerDays.map((r) => ({
+                  value: (r.count ?? 0).toString(),
+                  label: r.displayDate,
+                }))}
+              />
+            )}
+            {topLiterDays.length > 0 && (
+              <div className={topBeerDays.length > 0 ? "pt-4 border-t border-border" : ""}>
+                <RecordList
+                  title="Litros"
+                  records={topLiterDays.map((r) => ({
+                    value: `${(r.liters ?? 0).toFixed(1)}L`,
+                    label: r.displayDate,
+                  }))}
+                />
+              </div>
+            )}
+          </div>
         ) : (
           <p className="text-sm text-muted-foreground">No hay datos disponibles</p>
         )}

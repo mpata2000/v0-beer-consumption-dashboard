@@ -48,18 +48,11 @@ export function DailyMetrics({ data, selectedMember, hideChart = false }: DailyM
     <div className="space-y-6">
       <ConsumptionCard model={model} data={data} selectedMember={selectedMember} />
       {/* Records Container */}
-      <div className="grid gap-4 md:grid-cols-2">
-        <RecordsCard
-          title="Birras"
-          topGlobalDays={selectedMember === "all" ? topGlobalDays : []}
-          unit="beers"
-        />
-        <RecordsCard
-          title="Litros"
-          topGlobalDays={selectedMember === "all" ? litersTopGlobalDays : []}
-          unit="liters"
-        />
-      </div>
+      <RecordsCard
+        title="Records Grupales"
+        topBeerDays={selectedMember === "all" ? topGlobalDays : []}
+        topLiterDays={selectedMember === "all" ? litersTopGlobalDays : []}
+      />
 
       <BeersInRowCard data={filteredData} selectedMember={selectedMember} />
 
