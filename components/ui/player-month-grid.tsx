@@ -163,7 +163,7 @@ export function PlayerMonthGrid({
               return (
                 <div key={`row-${month}`} className="contents">
                   <div
-                    className="text-[7px] sm:text-xs text-muted-foreground h-7 sm:h-9 flex items-center font-medium pr-0.5"
+                    className="text-[9px] sm:text-xs text-muted-foreground h-7 sm:h-9 flex items-center font-medium pl-1 pr-0.5"
                     title={fullLabel}
                   >
                     <span>{fullLabel}</span>
