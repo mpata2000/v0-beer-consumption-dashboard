@@ -131,7 +131,7 @@ export function PlayerMonthGrid({
           <div
             className="grid gap-0.5 min-w-fit"
             style={{
-              gridTemplateColumns: `minmax(24px, 36px) repeat(${sortedPlayers.length}, minmax(36px, 1fr)) minmax(32px, 50px)`,
+              gridTemplateColumns: `minmax(28px, 40px) repeat(${sortedPlayers.length}, minmax(32px, 1fr)) minmax(28px, 40px)`,
               display: "grid",
             }}
           >

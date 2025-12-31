@@ -86,7 +86,7 @@ export function PlayerComparisonTable({
         <div className="overflow-x-auto flex-1 overflow-y-auto -mx-1 px-1">
           <div className="min-w-0">
             {/* Header row */}
-            <div className="grid grid-cols-[minmax(40px,1.2fr)_minmax(36px,1fr)_minmax(36px,1fr)_minmax(36px,1fr)] gap-1 sm:gap-2 mb-1 sm:mb-2 sticky top-0 bg-card z-10">
+            <div className="grid grid-cols-[minmax(32px,1fr)_minmax(32px,1fr)_minmax(32px,1fr)_minmax(32px,1fr)] gap-1 sm:gap-2 mb-1 sm:mb-2 sticky top-0 bg-card z-10">
               <div className="text-[8px] sm:text-xs font-semibold text-muted-foreground py-1 sm:py-2" />
               <div className="text-[8px] sm:text-xs font-semibold text-center text-muted-foreground py-1 sm:py-2 truncate px-0.5" title={player1Name}>
                 <span className="sm:hidden">{mobilePlayer1Name}</span>
@@ -108,7 +108,7 @@ export function PlayerComparisonTable({
                 return (
                   <div
                     key={index}
-                    className="grid grid-cols-[minmax(40px,1.2fr)_minmax(36px,1fr)_minmax(36px,1fr)_minmax(36px,1fr)] gap-1 sm:gap-2 mb-0.5 sm:mb-1"
+                    className="grid grid-cols-[minmax(32px,1fr)_minmax(32px,1fr)_minmax(32px,1fr)_minmax(32px,1fr)] gap-1 sm:gap-2 mb-0.5 sm:mb-1"
                   >
                     <div
                       className="text-[8px] sm:text-xs text-muted-foreground h-6 sm:h-8 flex items-center font-medium truncate pr-0.5"
@@ -142,7 +142,7 @@ export function PlayerComparisonTable({
         {showTotal && (
           <div className="border-t-2 border-border pt-1 sm:pt-2 mt-1 sm:mt-2 flex-shrink-0 bg-card">
             <div className="min-w-0">
-              <div className="grid grid-cols-[minmax(40px,1.2fr)_minmax(36px,1fr)_minmax(36px,1fr)_minmax(36px,1fr)] gap-1 sm:gap-2">
+              <div className="grid grid-cols-[minmax(32px,1fr)_minmax(32px,1fr)_minmax(32px,1fr)_minmax(32px,1fr)] gap-1 sm:gap-2">
                 <div className="text-[8px] sm:text-xs text-muted-foreground h-6 sm:h-8 flex items-center font-bold">
                   Total
                 </div>
