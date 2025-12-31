@@ -121,7 +121,7 @@ function calculateBeersInRow(data: DashboardData | null, selectedMember: string)
       }
       // Next day, wrapping from 20-23 to 0-3
       else if (currentStreak.endTimeRange === "20-23" && timeRange === "0-3") {
-        const prevDate = new Date(currentStreak.endDate)
+        const prevDate: Date = new Date(currentStreak.endDate)
         prevDate.setUTCDate(prevDate.getUTCDate() + 1)
         const nextDay = prevDate.toISOString().split("T")[0]
         if (date === nextDay) {
