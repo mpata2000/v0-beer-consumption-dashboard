@@ -1,10 +1,12 @@
 "use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { TrophyIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react"
+import { TrophyIcon, ChevronDownIcon, ChevronUpIcon, BeerIcon, DropletIcon } from "lucide-react"
 import type { DashboardData } from "@/lib/types"
 import { useMemo, useState } from "react"
 import { formatDateDDMMYYYY } from "@/lib/utils"
+
+type SortBy = "beers" | "liters"
 
 interface BeerStreak {
   name: string
@@ -159,8 +161,7 @@ function calculateBeersInRow(data: DashboardData | null, selectedMember: string)
     allStreaks.push(currentStreak)
   }
 
-  // Sort by beer count and return top streaks
-  return allStreaks.sort((a, b) => b.beers - a.beers)
+  return allStreaks
 }
 
 function StreakDetails({ entries }: { entries: BeerStreak["entries"] }) {
@@ -212,11 +213,15 @@ interface BeersInRowCardProps {
 
 export function BeersInRowCard({ data, selectedMember }: BeersInRowCardProps) {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null)
+  const [sortBy, setSortBy] = useState<SortBy>("beers")
 
   const topStreaks = useMemo(() => {
     const streaks = calculateBeersInRow(data, selectedMember)
-    return streaks.slice(0, 5)
-  }, [data, selectedMember])
+    const sorted = streaks.sort((a, b) =>
+      sortBy === "beers" ? b.beers - a.beers : b.liters - a.liters
+    )
+    return sorted.slice(0, 10)
+  }, [data, selectedMember, sortBy])
 
   if (topStreaks.length === 0) {
     return (
@@ -237,10 +242,36 @@ export function BeersInRowCard({ data, selectedMember }: BeersInRowCardProps) {
   return (
     <Card>
       <CardHeader className="pb-4">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <TrophyIcon className="h-5 w-5 text-primary" />
-          Birras Seguidas
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <TrophyIcon className="h-5 w-5 text-primary" />
+            Birras Seguidas
+          </CardTitle>
+          <div className="flex items-center gap-1 rounded-lg bg-muted p-1">
+            <button
+              onClick={() => setSortBy("beers")}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+                sortBy === "beers"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <BeerIcon className="h-3.5 w-3.5" />
+              Birras
+            </button>
+            <button
+              onClick={() => setSortBy("liters")}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+                sortBy === "liters"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <DropletIcon className="h-3.5 w-3.5" />
+              Litros
+            </button>
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="space-y-3">
         {topStreaks.map((streak, index) => {

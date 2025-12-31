@@ -15,42 +15,26 @@ interface PeakDayRecord {
   liters?: number;
 }
 
-interface IndividualRecord {
-  date: string;
-  displayDate: string;
-  name: string;
-  beers?: number;
-  liters?: number;
-}
-
 interface RecordsCardProps {
   title: string;
   topGlobalDays: PeakDayRecord[];
-  topIndividualRecords: IndividualRecord[];
   unit?: "beers" | "liters";
 }
 
 export function RecordsCard({
   title,
   topGlobalDays,
-  topIndividualRecords,
   unit = "beers",
 }: RecordsCardProps) {
   const formatValue = (value: number) => {
     return unit === "liters" ? `${value.toFixed(1)}L` : value.toString();
   };
 
-  const getValue = (record: PeakDayRecord | IndividualRecord) => {
+  const getValue = (record: PeakDayRecord) => {
     if (unit === "liters") {
-      return "liters" in record && record.liters !== undefined
-        ? record.liters
-        : 0;
+      return record.liters !== undefined ? record.liters : 0;
     }
-    return "count" in record && record.count !== undefined
-      ? record.count
-      : "beers" in record && record.beers !== undefined
-      ? record.beers
-      : 0;
+    return record.count !== undefined ? record.count : 0;
   };
 
   return (
@@ -59,39 +43,17 @@ export function RecordsCard({
         <CardTitle className="text-lg font-medium">{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          {topGlobalDays.length > 0 && (
-            <RecordList
-              title="Grupal"
-              records={topGlobalDays.map((r) => ({
-                value: formatValue(getValue(r)),
-                label: r.displayDate,
-              }))}
-            />
-          )}
-
-          {topGlobalDays.length > 0 && topIndividualRecords.length > 0 && (
-            <div className="pt-4 border-t border-border">
-              <RecordList
-                title="Individual"
-                records={topIndividualRecords.map((r) => ({
-                  value: formatValue(getValue(r)),
-                  label: `${r.name} el ${r.displayDate}`,
-                }))}
-              />
-            </div>
-          )}
-
-          {topGlobalDays.length === 0 && topIndividualRecords.length > 0 && (
-            <RecordList
-              title="Individual"
-              records={topIndividualRecords.map((r) => ({
-                value: formatValue(getValue(r)),
-                label: `${r.name} on ${r.displayDate}`,
-              }))}
-            />
-          )}
-        </div>
+        {topGlobalDays.length > 0 ? (
+          <RecordList
+            title="Grupal"
+            records={topGlobalDays.map((r) => ({
+              value: formatValue(getValue(r)),
+              label: r.displayDate,
+            }))}
+          />
+        ) : (
+          <p className="text-sm text-muted-foreground">No hay datos disponibles</p>
+        )}
       </CardContent>
     </Card>
   );

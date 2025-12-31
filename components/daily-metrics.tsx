@@ -39,15 +39,10 @@ export function DailyMetrics({ data, selectedMember, hideChart = false }: DailyM
   // Find top global peak days (only show when "all" is selected)
   const topGlobalDays = useMemo(() => model.topGlobalBeerDays(3, 3), [perDay])
 
-  // Find top individual records (up to 3 records with top 3 unique values)
-  const topIndividualRecords = useMemo(() => model.topIndividualBeerRecords(3, 3), [filteredData])
-
   // Liters top cards data (moved from LitersMetrics)
   const perDayMl: Record<string, number> = model.globalMilliLitersPerDay()
 
   const litersTopGlobalDays = useMemo(() => model.topGlobalLiterDays(3, 3), [perDayMl])
-
-  const litersTopIndividualRecords = useMemo(() => model.topIndividualLiterRecords(3, 3), [filteredData])
 
   return (
     <div className="space-y-6">
@@ -57,13 +52,11 @@ export function DailyMetrics({ data, selectedMember, hideChart = false }: DailyM
         <RecordsCard
           title="Birras"
           topGlobalDays={selectedMember === "all" ? topGlobalDays : []}
-          topIndividualRecords={topIndividualRecords}
           unit="beers"
         />
         <RecordsCard
           title="Litros"
           topGlobalDays={selectedMember === "all" ? litersTopGlobalDays : []}
-          topIndividualRecords={litersTopIndividualRecords}
           unit="liters"
         />
       </div>
