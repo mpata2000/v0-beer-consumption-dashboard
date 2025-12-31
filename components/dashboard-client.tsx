@@ -5,15 +5,24 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select } from "@/components/ui/select"
-import { BeerIcon, CalendarIcon, RefreshCwIcon, ExternalLinkIcon, BarChartIcon, PieChartIcon, SwordsIcon } from "lucide-react"
+import {
+  BeerIcon,
+  CalendarIcon,
+  RefreshCwIcon,
+  ExternalLinkIcon,
+  BarChartIcon,
+  PieChartIcon,
+  SwordsIcon,
+} from "lucide-react"
 import { StatsOverview } from "@/components/stats-overview"
 import { Leaderboard } from "@/components/leaderboard"
 import { DailyMetrics } from "@/components/daily-metrics"
 import { Insights } from "@/components/insights"
 import { Versus } from "@/components/versus"
-import { PlayerMonthComparisonCard, PlayerMonthComparisonLitersCard } from "@/components/daily"
+import { PlayerMonthComparisonCard } from "@/components/daily/player-month-comparison-card"
+import { PlayerMonthComparisonLitersCard } from "@/components/daily/player-month-comparison-liters-card"
 import { useRouter } from "next/navigation"
-import { DashboardData } from "@/lib/types"
+import type { DashboardData } from "@/lib/types"
 
 interface DashboardClientProps {
   initialData: DashboardData | null
@@ -29,7 +38,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
   const playersStats = initialData?.playersStats || {}
   const members = Object.entries(playersStats).map(([email, stats]) => ({
     email,
-    name: (stats as any).alias || email.split("@")[0]
+    name: (stats as any).alias || email.split("@")[0],
   }))
 
   const handleRefresh = async () => {
@@ -68,8 +77,18 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                   <ExternalLinkIcon className="h-3 w-3" />
                 </a>
               </Button>
-              <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing} aria-label="Refrescar datos">
-                {isRefreshing ? <RefreshCwIcon className="h-4 w-4 animate-spin" /> : <RefreshCwIcon className="h-4 w-4" />}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                aria-label="Refrescar datos"
+              >
+                {isRefreshing ? (
+                  <RefreshCwIcon className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCwIcon className="h-4 w-4" />
+                )}
               </Button>
             </div>
           </div>
@@ -101,20 +120,17 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
             {activeTab !== "versus" && activeTab !== "overview" && (
               <div className="flex items-center gap-3">
                 <Select
-                  id="member-filter"
                   value={selectedMember}
                   onChange={(e) => setSelectedMember(e.target.value)}
-                  className="w-[100px]"
+                  className="w-[180px]"
                   aria-label="Filtrar por miembro"
                 >
-                  <>
-                    <option value="all">Todos</option>
-                    {members.map((member) => (
-                      <option key={member.email} value={member.email}>
-                        {member.name}
-                      </option>
-                    ))}
-                  </>
+                  <option value="all">Todos</option>
+                  {members.map((member) => (
+                    <option key={member.email} value={member.email}>
+                      {member.name}
+                    </option>
+                  ))}
                 </Select>
               </div>
             )}

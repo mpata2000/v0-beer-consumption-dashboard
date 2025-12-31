@@ -32,21 +32,21 @@ Continue building your app on:
 ## Local Setup
 
 1) Install dependencies
-```bash
+\`\`\`bash
 pnpm install
-```
+\`\`\`
 
 2) Environment variables (`.env.local`)
-```bash
+\`\`\`bash
 GOOGLE_SHEETS_API_KEY=your-api-key
 GOOGLE_SHEETS_SPREADSHEET_ID=your-spreadsheet-id
 GOOGLE_SHEETS_RANGE=Sheet1!A1:L10000
-```
+\`\`\`
 
 3) Run the app
-```bash
+\`\`\`bash
 pnpm dev
-```
+\`\`\`
 
 ## Data Model and Members
 - Data is fetched from Google Sheets and normalized in `lib/beer-entry.ts`.
