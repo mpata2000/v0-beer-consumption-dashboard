@@ -1,42 +1,35 @@
 import { DashboardData, LeaderboardItem } from "@/lib/types"
 import { compareIsoDatesAsc, formatDateDDMMYYYY, monthKeyFromIso, parseIsoDateToUTC } from "@/lib/utils"
 import { PlayerStatsModel } from "@/lib/player-stats-model"
+import { TOTAL_DAYS } from "@/lib/constants"
 
 export class DashboardModel {
   readonly data: DashboardData | null
-  readonly daysSinceStart: number
+  readonly totalDays: number = TOTAL_DAYS
 
   constructor(data: DashboardData | null) {
     this.data = data
-    const now = new Date()
-    const todayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
-    const perDay = data?.globalBeerPerDay || {}
-    const keys = Object.keys(perDay)
-    const startUTC: Date = keys.length > 0
-      ? parseIsoDateToUTC(keys.reduce((min, curr) => (compareIsoDatesAsc(curr, min) < 0 ? curr : min), keys[0]))
-      : todayUTC
-    this.daysSinceStart = Math.floor((todayUTC.getTime() - startUTC.getTime()) / (1000 * 60 * 60 * 24))
   }
 
   totalStats() {
     if (!this.data) {
-      return { totalBeers: 0, totalLiters: 0, avgBeersPerDay: 0, avgLitersPerDay: 0, daysSinceStart: 0 }
+      return { totalBeers: 0, totalLiters: 0, avgBeersPerDay: 0, avgLitersPerDay: 0, totalDays: 0 }
     }
 
     const totalLiters = this.data.totalMilliliters / 1000
-    const days = this.daysSinceStart
+    const days = this.totalDays
     return {
       totalBeers: this.data.totalBeers,
       totalLiters,
       avgBeersPerDay: days > 0 ? this.data.totalBeers / days : 0,
       avgLitersPerDay: days > 0 ? totalLiters / days : 0,
-      daysSinceStart: days,
+      totalDays: days,
     }
   }
 
   leaderboard(): LeaderboardItem[] {
     if (!this.data) return []
-    const days = this.daysSinceStart
+    const days = this.totalDays
     return Object.entries(this.data.playersStats)
       .map(([email, stats]) => ({
         email,

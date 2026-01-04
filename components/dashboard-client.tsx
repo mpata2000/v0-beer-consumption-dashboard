@@ -23,6 +23,8 @@ import { PlayerMonthComparisonCard } from "@/components/daily/player-month-compa
 import { PlayerMonthComparisonLitersCard } from "@/components/daily/player-month-comparison-liters-card"
 import { useRouter } from "next/navigation"
 import type { DashboardData } from "@/lib/types"
+import { TOURNAMENT_START_DATE, TOURNAMENT_END_DATE } from "@/lib/constants"
+import { formatDateDDMMYYYY } from "@/lib/utils"
 
 interface DashboardClientProps {
   initialData: DashboardData | null
@@ -63,20 +65,8 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
             </div>
             <div className="flex items-center space-x-3">
               <Badge variant="secondary" className="bg-accent/20 text-accent">
-                <CalendarIcon className="mr-1 h-3 w-3" />
-                Since Feb 2025
+                {formatDateDDMMYYYY(TOURNAMENT_START_DATE)} to {formatDateDDMMYYYY(TOURNAMENT_END_DATE)}
               </Badge>
-              <Button variant="outline" size="sm" asChild aria-label="Agregar entrada">
-                <a
-                  href="https://forms.gle/yNnGcQaCy98FGSQp9"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center space-x-1"
-                >
-                  <span className="hidden sm:inline">Add Entry</span>
-                  <ExternalLinkIcon className="h-3 w-3" />
-                </a>
-              </Button>
               <Button
                 variant="outline"
                 size="sm"
